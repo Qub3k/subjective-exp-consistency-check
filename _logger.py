@@ -19,7 +19,7 @@ def setup_console_and_file_logger(name, log_file_name, level):
         return loggers.get(name)
 
     simple_formatter = logging.Formatter(
-        fmt='%(asctime)s %(levelname)s: %(message)s'
+        fmt='%(asctime)s %(module)s %(levelname)s: %(message)s'
     )
 
     console_handler = logging.StreamHandler()
