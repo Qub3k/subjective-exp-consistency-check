@@ -55,7 +55,7 @@ def proces_input_parameters():
     parser = argparse.ArgumentParser(description="Provides a friendly interface for the GSD model parameters "
                                                  "estimation. It also gives information about how well"
                                                  " the model fits your data. This is presented in a form of "
-                                                 "p-value qq-plot.")
+                                                 "p-value P–P plot.")
     parser.add_argument("data_csv_filepath", help="a filepath to a tidy CSV file with your data",
                         metavar="data_filepath", type=file_path)
     parser.add_argument("-p", "--pickle", help="a filepath to the pickled probability grid of the GSD model. It "
