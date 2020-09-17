@@ -39,6 +39,6 @@ def setup_console_and_file_logger(name, log_file_name, level):
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
 
-    loggers.update(dict(name=logger))
+    loggers.update({f"{name}": logger})
 
     return logger
