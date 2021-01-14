@@ -37,7 +37,7 @@ If your goal is to learn more about the method, the code or you would like to im
 from the scratch then please refer to the [In-depth Tutorial about Generating *p*-Value P–P Plots for Your Subjective
 Data](#in-depth-tutorial-about-generating-p-value-pp-plots-for-your-subjective-data) section.
 
-To lear more about code's batch processing functionality please see the [Batch Processing](#batch-processing) section.
+To learn more about code's batch processing functionality please see the [Batch Processing](#batch-processing) section.
 
 # Repository Structure
 
