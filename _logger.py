@@ -11,7 +11,7 @@ def setup_console_and_file_logger(name, log_file_name, level):
     :param log_file_name: a file in which to store the log
     :param level: a minimum threshold severity level of messages that will be handled by this logger. This must be given
         in a format recognised by the logging.Handler.setLevel() function.
-    :return a logger object with two handlers (file and console)
+    :return: a logger object with two handlers (file and console)
     """
     global loggers
 
