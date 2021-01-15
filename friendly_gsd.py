@@ -225,6 +225,8 @@ def main():
     logger.info("Reading chunk with id {} (of {} total chunks)".format(chunk_idx, n_chunks))
     # Read the appropriate chunk of data
     subjective_data = pd.read_csv(args.data_csv_filepath)
+    # TODO 1. Allow to also group by both stimulus and experiment identifiers. (This is necessary if we want to use this
+    #  code with our tidy CSV file.)
     data_stimulus_grouped = subjective_data.groupby(args.stimulus_identifier)
     # coi - chunk of interest
     keys_for_coi = read_input_data_subsection(data_stimulus_grouped, n_chunks, chunk_idx)
