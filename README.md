@@ -148,8 +148,10 @@ this two-step procedure:
 After the modifications the relevant code fragment should look as follows.
 ```python
 # res - results
-g_test_res = perform_g_test(keys_for_coi, data_stimulus_grouped, prob_grid_gsd,
-                            score_col_identifier=args.score_identifier, n_bootstrap_samples=1)
+g_test_res = perform_g_test(keys_for_coi, data_grouped, prob_grid_gsd,
+                            score_col_identifier=args.score_identifier,
+                            grouped_also_by_experiment=args.group_also_by_experiment,
+                            n_bootstrap_samples=1)
 
 # Visualise G-test results in a form of p-value pp-plot
 # pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res)
