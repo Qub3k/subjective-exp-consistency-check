@@ -12,10 +12,103 @@
 # Created: Jan 14, 2021
 
 import pandas as pd
+from enum import Enum
+import numpy as np
+from scipy.stats import norm
+
+
+class Experiment(Enum):
+    """
+    An enumeration unifying the access interface to experiment name and ID
+    """
+    HDTV1 = 1
+    HDTV2 = 2
+    HDTV3 = 3
+    HDTV4 = 4
+    HDTV5 = 5
+    HDTV6 = 6
+    ITS4S_NTIA = 7
+    ITS4S_AGH = 8
+    AGH_NTIA = 9
+    MM2_NTIA_LAB = 10
+    MM2_NTIA_CAFETERIA = 11
+    MM2_INTEL_LAB = 12
+    MM2_IRCCYN_LAB = 13
+    MM2_IRCCYN_CAFETERA = 14
+    MM2_TECHNICOLOR_LAB = 15
+    MM2_TECHNICOLOR_PATIO = 16
+    MM2_AGH_LAB = 17
+    MM2_AGH_HALLWAY = 18
+    MM2_OPTICOM_HOME = 19
+    ITS4S2 = 20
+    ITU_T_SUPP23 = 21
+
+
+def check_consistency_of_all_experiments(g_test_res_csv_filepath="G_test_results.csv", conj_alpha=0.2,
+                                         should_store_as_csv=False):
+    """
+    Uses hypothesis testing to classify a given experiment as consistent or inconsistent. This corresponds to the
+    analysis described in the original paper, but with alpha being constant and equal to *conj_alpha*.
+
+    Null hypothesis: The fraction of stimuli with score distribution not compliant with the GSD is not greater than
+        *conj_alpha*. (Note that we treat as not compliant with the GSD all stimuli, which score distribution get
+        assigned by the G-test of goodness-of-fite a p-value below *conj_alpha*.)
+    Alternative hypothesis: The fraction of stimuli with score distribution not compliant with the GSD is greater than
+        *conj_alpha*.
+
+    WARNING: Treat the results of this analysis as a preliminary view on experiment consistency. Generate a P–P plot
+        to get the complete view of the situation.
+
+    :param g_test_res_csv_filepath: a filepath of the CSV file with G-test results
+    :param conj_alpha: conjectured alpha (i.e., the fraction of stimuli that do not follow the GSD)
+    :param should_store_as_csv: a flag indicating whether to store the results in a CSV file (named
+     consistency_hypothesis_check_res.csv)
+    :return: a DataFrame with p-values for each experiment
+    """
+    g_test_results = pd.read_csv(g_test_res_csv_filepath)
+
+    # consist_hyp_res - consistency hypothesis check results
+    consist_hyp_res = pd.DataFrame(np.zeros((len(Experiment), 2)), columns=["pvalue", "is_consistent"],
+                                   index=list(Experiment))
+
+    print(f"Conjectured alpha (i.e., the fraction of stimuli that do not follow the GSD): {conj_alpha}")
+
+    for exp_enum in Experiment:
+        print("-" * 10)
+        print("Processing experiment {}".format(exp_enum.name))
+        exp_id = exp_enum.value
+        exp_res = g_test_results.groupby("Exp").get_group(exp_id)
+
+        # theor_thresh - theoretical threshold, n - the number of
+        theor_thresh = conj_alpha + 1.64 * np.sqrt(conj_alpha * (1 - conj_alpha) / len(exp_res))
+        n_pvs_below_thresh = np.sum(exp_res["p-value_gsd"] < conj_alpha)
+        n_pvs = len(exp_res)
+        observed_alpha = n_pvs_below_thresh / n_pvs
+
+        if observed_alpha > theor_thresh:
+            print("The experiment is inconsistent")
+            consist_hyp_res.loc[exp_enum, "is_consistent"] = False
+        else:
+            print("The experiment is consistent")
+            consist_hyp_res.loc[exp_enum, "is_consistent"] = True
+
+        # Find the p-value of the test
+        # Calculate the test statistic (which comes from the standard normal distribution under H0)
+        test_statistic = (n_pvs_below_thresh - n_pvs * conj_alpha) / (np.sqrt(n_pvs * conj_alpha * (1 - conj_alpha)))
+        # Compare it to the standard normal distribution (specifically, its CDF)
+        pvalue = 1 - norm.cdf(test_statistic)
+        print("p-value: {:.4f}".format(pvalue))
+
+        consist_hyp_res.loc[exp_enum, "pvalue"] = pvalue
+
+    if should_store_as_csv:
+        consist_hyp_res.to_csv("consistency_hypothesis_check_res.csv")
+    return consist_hyp_res
 
 
 def reproduce_table_one():
     print("Reproducing Tab. 1")
+    print("=" * 18)
     prob_grid_gsd = pd.read_pickle("gsd_prob_grid.pkl")
     default_float_format = pd.get_option("float_format")
     pd.set_option("float_format", "{:.3f}".format)
@@ -24,10 +117,26 @@ def reproduce_table_one():
     return
 
 
+def reproduce_table_two():
+    print("\nRunning computations necessary for reproduction of Tab.2...\n")
+    # pval - p-value; exp - experiment
+    pval_per_exp = check_consistency_of_all_experiments()
+    print("\nReproducing Tab. 2")
+    print("="*18)
+    default_float_format = pd.get_option("float_format")
+    pd.set_option("float_format", "{:.5f}".format)
+    print(pval_per_exp.loc[[Experiment.ITS4S2, Experiment.ITS4S_AGH, Experiment.ITS4S_NTIA, Experiment.MM2_IRCCYN_LAB],
+                           "pvalue"])
+    pd.set_option("float_format", default_float_format)
+    return
+
+
 def main():
     # Reproduce the creation of Tab. 1
     reproduce_table_one()
-    # TODO 1. Reproduce the creation of Tab. 2
+    # Reproduce the creation of Tab. 2
+    reproduce_table_two()
+    # TODO 1. Reproduce Fig. 3
     return
 
 
