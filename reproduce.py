@@ -15,6 +15,7 @@ import pandas as pd
 from enum import Enum
 import numpy as np
 from scipy.stats import norm
+from friendly_gsd import draw_p_value_pp_plot
 
 
 class Experiment(Enum):
@@ -131,12 +132,27 @@ def reproduce_table_two():
     return
 
 
+def reproduce_figure_three():
+    print("Reproducing Fig. 3")
+    print("="*18)
+    # Read the G-test of GoF p-values relevant for the analysis
+    g_test_results = pd.read_csv("G_test_results.csv")
+    hdtv1_res = g_test_results.groupby("Exp").get_group(Experiment.HDTV1.value)
+    its4s2_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S2.value)
+    its4s_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S_AGH.value)
+    agh_ntia_res = g_test_results.groupby("Exp").get_group(Experiment.AGH_NTIA.value)
+    # TODO 1.2 Generate P–P plots and store them on the disk
+    draw_p_value_pp_plot()
+    return
+
+
 def main():
     # Reproduce the creation of Tab. 1
     reproduce_table_one()
     # Reproduce the creation of Tab. 2
     reproduce_table_two()
     # TODO 1. Reproduce Fig. 3
+    reproduce_figure_three()
     return
 
 
