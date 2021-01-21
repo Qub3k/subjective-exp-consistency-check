@@ -133,3 +133,6 @@ dmypy.json
 
 # PyCharm IDE
 .idea
+
+# Output PDF P–P plots
+p-value_pp-plot*.pdf
