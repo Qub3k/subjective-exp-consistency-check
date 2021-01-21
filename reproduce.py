@@ -108,6 +108,7 @@ def check_consistency_of_all_experiments(g_test_res_csv_filepath="G_test_results
 
 
 def reproduce_table_one():
+    # TODO Store table one in a CSV file
     print("Reproducing Tab. 1")
     print("=" * 18)
     prob_grid_gsd = pd.read_pickle("gsd_prob_grid.pkl")
@@ -119,6 +120,7 @@ def reproduce_table_one():
 
 
 def reproduce_table_two():
+    # TODO Store table two in a CSV file
     print("\nRunning computations necessary for reproduction of Tab.2...\n")
     # pval - p-value; exp - experiment
     pval_per_exp = check_consistency_of_all_experiments()
@@ -153,13 +155,32 @@ def reproduce_figure_three():
     return
 
 
+def reproduce_table_three():
+    print("\nReproducing Tab. 3")
+    print("=" * 18)
+    # Read five stimuli with the lowest p-value from the ITS4S_AGH experiment
+    g_test_results = pd.read_csv("G_test_results.csv")
+    its4s_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S_AGH.value)
+    # Sort the results according to GSD p-value
+    sorted_its4s_res = its4s_res.sort_values(by="p-value_gsd")
+    # Take results for the 5 lowest p-values and store in a CSV file
+    five_lowest_its4s = sorted_its4s_res.head(n=5)
+    # Change the index from numerical to a, b, c, d, e. li - letter index
+    li_five_lowest_its4s = five_lowest_its4s.set_index(pd.Index(['a', 'b', 'c', 'd', 'e']))
+    # coi - columns of interest
+    li_five_lowest_its4s_coi = li_five_lowest_its4s[["count1", "count2", "count3", "count4", "count5", "p-value_gsd"]]
+    print(li_five_lowest_its4s_coi)
+    out_csv_filename = "five_lowest_pvalue_res_its4s_agh.csv"
+    li_five_lowest_its4s_coi.to_csv(out_csv_filename)
+    print(f"Stored the table in the {out_csv_filename} file")
+    return
+
+
 def main():
-    # Reproduce the creation of Tab. 1
     reproduce_table_one()
-    # Reproduce the creation of Tab. 2
     reproduce_table_two()
-    # Reproduce Fig. 3
     reproduce_figure_three()
+    reproduce_table_three()
     return
 
 
