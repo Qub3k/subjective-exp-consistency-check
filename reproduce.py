@@ -125,7 +125,6 @@ def reproduce_table_one():
 
 
 def reproduce_table_two():
-    # TODO Store table two in a CSV file
     print("\nRunning computations necessary for reproduction of Tab.2...\n")
     # pval - p-value; exp - experiment
     pval_per_exp = check_consistency_of_all_experiments()
@@ -133,9 +132,14 @@ def reproduce_table_two():
     print("="*18)
     default_float_format = pd.get_option("float_format")
     pd.set_option("float_format", "{:.5f}".format)
-    print(pval_per_exp.loc[[Experiment.ITS4S2, Experiment.ITS4S_AGH, Experiment.ITS4S_NTIA, Experiment.MM2_IRCCYN_LAB],
-                           "pvalue"])
+    # ser - Pandas Series; oi - of interest
+    ser_oi = pval_per_exp.loc[[Experiment.ITS4S2, Experiment.ITS4S_AGH, Experiment.ITS4S_NTIA,
+                              Experiment.MM2_IRCCYN_LAB], "pvalue"]
+    print(ser_oi)
     pd.set_option("float_format", default_float_format)
+    out_csv_filename = "table_two_pvals.csv"
+    ser_oi.to_csv(out_csv_filename, float_format="%.5f", index_label="Experiment")
+    print(f"Stored Tab. 2 in the {out_csv_filename} file")
     return
 
 
