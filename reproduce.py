@@ -133,7 +133,7 @@ def reproduce_table_two():
 
 
 def reproduce_figure_three():
-    print("Reproducing Fig. 3")
+    print("\nReproducing Fig. 3")
     print("="*18)
     # Read the G-test of GoF p-values relevant for the analysis
     g_test_results = pd.read_csv("G_test_results.csv")
@@ -141,8 +141,15 @@ def reproduce_figure_three():
     its4s2_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S2.value)
     its4s_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S_AGH.value)
     agh_ntia_res = g_test_results.groupby("Exp").get_group(Experiment.AGH_NTIA.value)
-    # TODO 1.2 Generate P–P plots and store them on the disk
-    draw_p_value_pp_plot()
+    # Generate P–P plots and store them on the disk
+    draw_p_value_pp_plot(hdtv1_res, should_store_figure=True, filename_addition=Experiment.HDTV1.name,
+                         pval_col_id="p-value_gsd")
+    draw_p_value_pp_plot(its4s2_res, should_store_figure=True, filename_addition=Experiment.ITS4S2.name,
+                         pval_col_id="p-value_gsd")
+    draw_p_value_pp_plot(its4s_res, should_store_figure=True, filename_addition=Experiment.ITS4S_AGH.name,
+                         pval_col_id="p-value_gsd")
+    draw_p_value_pp_plot(agh_ntia_res, should_store_figure=True, filename_addition=Experiment.AGH_NTIA.name,
+                         pval_col_id="p-value_gsd")
     return
 
 
@@ -151,7 +158,7 @@ def main():
     reproduce_table_one()
     # Reproduce the creation of Tab. 2
     reproduce_table_two()
-    # TODO 1. Reproduce Fig. 3
+    # Reproduce Fig. 3
     reproduce_figure_three()
     return
 
