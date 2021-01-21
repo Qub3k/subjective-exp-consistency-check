@@ -136,3 +136,6 @@ dmypy.json
 
 # Output PDF P–P plots
 p-value_pp-plot*.pdf
+
+# Output CSV files
+/five_lowest_pvalue_res*.csv
