@@ -152,7 +152,8 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
     return g_test_res
 
 
-def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_store_figure=False, ext="pdf"):
+def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_store_figure=False, ext="pdf",
+                         filename_addition="", pval_col_id="p_value"):
     """
     Draws p-value P--P plot for G-test of goodness-of-fit data provided in *g_test_res*. By default, the x-axis of the
     plot spans the range from 0 to 0.2 (cf. *thresh_pvalue*). One can ask to store the resulting plot
@@ -163,6 +164,9 @@ def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_sto
     :param thresh_pvalue: the x-axis spans the range from 0 up to this value
     :param should_store_figure: a flag indicating whether to store plots on the disk
     :param ext: file extension to use when storing figures (e.g., png or pdf)
+    :param filename_addition: a string allowing to make the output file's filename unique. (Useful when this function
+     is called multiple times for different data.)
+    :param pval_col_id: p-value column identifier that should be used when reading from *g_test_res*
     :return: a figure handle
     """
     n_pvs = len(g_test_res)
@@ -171,11 +175,11 @@ def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_sto
     def count_pvs_fraction(p_value, p_value_per_pvs):
         return np.sum(p_value_per_pvs <= p_value) / len(p_value_per_pvs)
 
-    pvs_fraction_gsd = g_test_res["p_value"].apply(count_pvs_fraction, args=(g_test_res["p_value"],))
+    pvs_fraction_gsd = g_test_res[pval_col_id].apply(count_pvs_fraction, args=(g_test_res[pval_col_id],))
     significance_line = p_values + norm.ppf(0.95) * np.sqrt(p_values * (1 - p_values) / n_pvs)
 
     fig = plt.figure()
-    plt.scatter(g_test_res["p_value"], pvs_fraction_gsd, label="GSD")
+    plt.scatter(g_test_res[pval_col_id], pvs_fraction_gsd, label="GSD")
     plt.xlabel("theoretical uniform cdf")
     plt.ylabel("ecdf of $p$-values")
     plt.plot(p_values, significance_line, "-k")
@@ -184,9 +188,10 @@ def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_sto
     plt.minorticks_on()
 
     if should_store_figure:
-        saved_fig_filename = "p-value_pp-plot." + ext
+        saved_fig_filename = "_".join(["p-value_pp-plot", filename_addition]) + "." + ext
         plt.savefig(saved_fig_filename)
         plt.close(fig)
+        print(f"Stored the P-P plot in the {saved_fig_filename} file")
     else:
         plt.show()
 
