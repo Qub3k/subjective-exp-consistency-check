@@ -176,11 +176,33 @@ def reproduce_table_three():
     return
 
 
+def reproduce_table_four():
+    print("\nReproducing Tab. 4")
+    print("=" * 18)
+    # Read five stimuli with the lowest p-value from the ITS4S2 experiment
+    g_test_results = pd.read_csv("G_test_results.csv")
+    its4s2_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S2.value)
+    # Sort the results according to GSD p-value
+    sorted_its4s2_res = its4s2_res.sort_values(by="p-value_gsd")
+    # Take results for the 5 lowest p-values and store in a CSV file
+    five_lowest_its4s2 = sorted_its4s2_res.head(n=5)
+    # Change the index from numerical to f, g, h, i, j. li - letter index
+    li_five_lowest_its4s2 = five_lowest_its4s2.set_index(pd.Index(['f', 'g', 'h', 'i', 'j']))
+    # coi - columns of interest
+    li_five_lowest_its4s2_coi = li_five_lowest_its4s2[["count1", "count2", "count3", "count4", "count5", "p-value_gsd"]]
+    print(li_five_lowest_its4s2_coi)
+    out_csv_filename = "five_lowest_pvalue_res_its4s2.csv"
+    li_five_lowest_its4s2_coi.to_csv(out_csv_filename)
+    print(f"Stored the table in the {out_csv_filename} file")
+    return
+
+
 def main():
     reproduce_table_one()
     reproduce_table_two()
     reproduce_figure_three()
     reproduce_table_three()
+    reproduce_table_four()
     return
 
 
