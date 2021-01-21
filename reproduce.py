@@ -108,14 +108,19 @@ def check_consistency_of_all_experiments(g_test_res_csv_filepath="G_test_results
 
 
 def reproduce_table_one():
-    # TODO Store table one in a CSV file
     print("Reproducing Tab. 1")
     print("=" * 18)
     prob_grid_gsd = pd.read_pickle("gsd_prob_grid.pkl")
     default_float_format = pd.get_option("float_format")
     pd.set_option("float_format", "{:.3f}".format)
-    print(prob_grid_gsd.loc[[(2.1, 0.95), (2.1, 0.88), (2.1, 0.81), (2.1, 0.72), (2.1, 0.61), (2.1, 0.38)]])
+    # df - DataFrame; oi - of interest
+    df_oi = prob_grid_gsd.loc[[(2.1, 0.95), (2.1, 0.88), (2.1, 0.81), (2.1, 0.72), (2.1, 0.61), (2.1, 0.38)]]
+    print(df_oi)
     pd.set_option("float_format", default_float_format)
+    df_oi_float = df_oi.astype(float)
+    out_csv_filename = "table_one_score_counts.csv"
+    df_oi_float.to_csv(out_csv_filename, float_format="%.3f")
+    print(f"Stored Tab. 1 in the {out_csv_filename} file")
     return
 
 
