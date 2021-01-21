@@ -153,14 +153,15 @@ def reproduce_figure_three():
     its4s_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S_AGH.value)
     agh_ntia_res = g_test_results.groupby("Exp").get_group(Experiment.AGH_NTIA.value)
     # Generate P–P plots and store them on the disk
-    draw_p_value_pp_plot(hdtv1_res, should_store_figure=True, filename_addition=Experiment.HDTV1.name,
+    draw_p_value_pp_plot(hdtv1_res, should_store_figure=True,
+                         filename_addition="_".join([Experiment.HDTV1.name, "fig_three"]), pval_col_id="p-value_gsd")
+    draw_p_value_pp_plot(its4s2_res, should_store_figure=True,
+                         filename_addition="_".join([Experiment.ITS4S2.name, "fig_three"]), pval_col_id="p-value_gsd")
+    draw_p_value_pp_plot(its4s_res, should_store_figure=True,
+                         filename_addition="_".join([Experiment.ITS4S_AGH.name, "fig_three"]),
                          pval_col_id="p-value_gsd")
-    draw_p_value_pp_plot(its4s2_res, should_store_figure=True, filename_addition=Experiment.ITS4S2.name,
-                         pval_col_id="p-value_gsd")
-    draw_p_value_pp_plot(its4s_res, should_store_figure=True, filename_addition=Experiment.ITS4S_AGH.name,
-                         pval_col_id="p-value_gsd")
-    draw_p_value_pp_plot(agh_ntia_res, should_store_figure=True, filename_addition=Experiment.AGH_NTIA.name,
-                         pval_col_id="p-value_gsd")
+    draw_p_value_pp_plot(agh_ntia_res, should_store_figure=True,
+                         filename_addition="_".join([Experiment.AGH_NTIA.name, "fig_three"]), pval_col_id="p-value_gsd")
     return
 
 
@@ -179,8 +180,8 @@ def reproduce_table_three():
     # coi - columns of interest
     li_five_lowest_its4s_coi = li_five_lowest_its4s[["count1", "count2", "count3", "count4", "count5", "p-value_gsd"]]
     print(li_five_lowest_its4s_coi)
-    out_csv_filename = "five_lowest_pvalue_res_its4s_agh.csv"
-    li_five_lowest_its4s_coi.to_csv(out_csv_filename)
+    out_csv_filename = "table_three_five_lowest_pvalue_res_its4s_agh.csv"
+    li_five_lowest_its4s_coi.to_csv(out_csv_filename, index_label="ID")
     print(f"Stored the table in the {out_csv_filename} file")
     return
 
@@ -200,8 +201,8 @@ def reproduce_table_four():
     # coi - columns of interest
     li_five_lowest_its4s2_coi = li_five_lowest_its4s2[["count1", "count2", "count3", "count4", "count5", "p-value_gsd"]]
     print(li_five_lowest_its4s2_coi)
-    out_csv_filename = "five_lowest_pvalue_res_its4s2.csv"
-    li_five_lowest_its4s2_coi.to_csv(out_csv_filename)
+    out_csv_filename = "table_four_five_lowest_pvalue_res_its4s2.csv"
+    li_five_lowest_its4s2_coi.to_csv(out_csv_filename, index_label="ID")
     print(f"Stored the table in the {out_csv_filename} file")
     return
 
