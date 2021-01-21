@@ -139,3 +139,4 @@ p-value_pp-plot*.pdf
 
 # Output CSV files
 /five_lowest_pvalue_res*.csv
+/table_one_score_counts.csv
