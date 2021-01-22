@@ -133,3 +133,6 @@ dmypy.json
 
 # PyCharm IDE
 .idea
+
+# Output CSV files
+/G_test_on_*.csv
