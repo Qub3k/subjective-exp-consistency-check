@@ -58,7 +58,7 @@ def main(_argv):
                             "path of a CSV file you wish to process"
 
     prob_grid_gsd_df = pd.read_pickle("gsd_prob_grid.pkl")
-    prob_grid_normal_df = pd.read_pickle("qnormal_prob_grid.pkl")
+    prob_grid_qnormal_df = pd.read_pickle("qnormal_prob_grid.pkl")
 
     filepath_cli_idx = 3
     in_csv_filepath = Path(_argv[filepath_cli_idx])
@@ -91,7 +91,7 @@ def main(_argv):
 
     with open(csv_results_filename, 'w', newline='', buffering=1) as csvfile:
         fieldnames = ["PVS_id", "count1", "count2", "count3", "count4", "count5", "MOS", "Exp", "psi_hat_gsd",
-                      "rho_hat", "psi_hat_normal", "sigma_hat", "T_gsd", "T_normal", "p-value_gsd", "p-value_normal"]
+                      "rho_hat", "psi_hat_qnormal", "sigma_hat", "T_gsd", "T_qnormal", "p-value_gsd", "p-value_qnormal"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -120,35 +120,35 @@ def main(_argv):
             logger.info("Estimating both models parameters using MLE on the probability grid")
             # est = esimated
             psi_hat_gsd, rho_hat = estimate_parameters(sample_scores, prob_grid_gsd_df)
-            psi_hat_normal, sigma_hat = estimate_parameters(sample_scores, prob_grid_normal_df)
+            psi_hat_qnormal, sigma_hat = estimate_parameters(sample_scores, prob_grid_qnormal_df)
             row_to_store["psi_hat_gsd"] = psi_hat_gsd
             row_to_store["rho_hat"] = rho_hat
-            row_to_store["psi_hat_normal"] = psi_hat_normal
+            row_to_store["psi_hat_qnormal"] = psi_hat_qnormal
             row_to_store["sigma_hat"] = sigma_hat
 
             logger.info("Calculating T statistic for both models")
             # exp_prob = expected probability
             exp_prob_gsd = gsd.prob(psi_hat_gsd, rho_hat)
-            exp_prob_normal = qnormal.prob(psi_hat_normal, sigma_hat)
+            exp_prob_qnormal = qnormal.prob(psi_hat_qnormal, sigma_hat)
             T_statistic_gsd = bootstrap.T_statistic(score_counts, exp_prob_gsd)
-            T_statistic_normal = bootstrap.T_statistic(score_counts, exp_prob_normal)
+            T_statistic_qnormal = bootstrap.T_statistic(score_counts, exp_prob_qnormal)
             row_to_store["T_gsd"] = T_statistic_gsd
-            row_to_store["T_normal"] = T_statistic_normal
+            row_to_store["T_qnormal"] = T_statistic_qnormal
 
             logger.info("Generating 10k bootstrap samples for both models")
             n_total_scores = np.sum(score_counts)
             n_bootstrap_samples = 10000
             bootstrap_samples_gsd = gsd.sample(psi_hat_gsd, rho_hat, n_total_scores, n_bootstrap_samples)
-            bootstrap_samples_normal = qnormal.sample(psi_hat_normal, sigma_hat, n_total_scores, n_bootstrap_samples)
+            bootstrap_samples_qnormal = qnormal.sample(psi_hat_qnormal, sigma_hat, n_total_scores, n_bootstrap_samples)
 
             # Estimate GSD and QNormal parameters for each bootstrapped sample
             logger.info("Estimating GSD and QNormal parameters for each bootstrapped sample")
             psi_hat_rho_hat_gsd_bootstrap = np.apply_along_axis(estimate_parameters, axis=1, arr=bootstrap_samples_gsd,
                                                                 prob_grid_df=prob_grid_gsd_df, sample_as_counts=True)
-            psi_hat_sigma_hat_normal_bootstrap = np.apply_along_axis(estimate_parameters, axis=1,
-                                                                     arr=bootstrap_samples_normal,
-                                                                     prob_grid_df=prob_grid_normal_df,
-                                                                     sample_as_counts=True)
+            psi_hat_sigma_hat_qnormal_bootstrap = np.apply_along_axis(estimate_parameters, axis=1,
+                                                                      arr=bootstrap_samples_qnormal,
+                                                                      prob_grid_df=prob_grid_qnormal_df,
+                                                                      sample_as_counts=True)
 
             # Translate the estimated bootstrap parameters into probabilities of each answer
             logger.info("Translating the estimated parameters into probabilities of each answer")
@@ -168,20 +168,20 @@ def main(_argv):
 
             bootstrap_exp_prob_gsd = np.apply_along_axis(_get_each_answer_probability, axis=1,
                                                          arr=psi_hat_rho_hat_gsd_bootstrap, prob_generator=gsd.prob)
-            bootstrap_exp_prob_normal = np.apply_along_axis(_get_each_answer_probability, axis=1,
-                                                            arr=psi_hat_sigma_hat_normal_bootstrap,
-                                                            prob_generator=qnormal.prob)
+            bootstrap_exp_prob_qnormal = np.apply_along_axis(_get_each_answer_probability, axis=1,
+                                                             arr=psi_hat_sigma_hat_qnormal_bootstrap,
+                                                             prob_generator=qnormal.prob)
 
             # Perform the G-test
             logger.info("Performing the G-test")
             p_value_g_test_gsd = bootstrap.G_test(score_counts, exp_prob_gsd, bootstrap_samples_gsd,
                                                   bootstrap_exp_prob_gsd)
-            p_value_g_test_normal = bootstrap.G_test(score_counts, exp_prob_normal, bootstrap_samples_normal,
-                                                     bootstrap_exp_prob_normal)
+            p_value_g_test_qnormal = bootstrap.G_test(score_counts, exp_prob_qnormal, bootstrap_samples_qnormal,
+                                                      bootstrap_exp_prob_qnormal)
             row_to_store["p-value_gsd"] = p_value_g_test_gsd
-            row_to_store["p-value_normal"] = p_value_g_test_normal
+            row_to_store["p-value_qnormal"] = p_value_g_test_qnormal
             logger.info("p-value (G-test) for GSD: {}".format(p_value_g_test_gsd))
-            logger.info("p-value (G-test) for QNormal: {}".format(p_value_g_test_normal))
+            logger.info("p-value (G-test) for QNormal: {}".format(p_value_g_test_qnormal))
 
             writer.writerow(row_to_store)
             it_num += 1
