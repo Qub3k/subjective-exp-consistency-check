@@ -17,6 +17,7 @@ import gsd
 import qnormal
 import numpy as np
 from sys import argv
+from pathlib import Path
 
 logger = None
 
@@ -53,11 +54,16 @@ def read_input_data_subsection(grouped_scores: pd.core.groupby.GroupBy, n_subsec
 
 
 def main(_argv):
-    assert len(_argv) == 3, "This script requires 2 parameters: the number of chunks and a zero-based chunk index"
+    assert len(_argv) == 4, "This script requires 3 parameters: the number of chunks, a zero-based chunk index and " \
+                            "path of a CSV file you wish to process"
 
     prob_grid_gsd_df = pd.read_pickle("gsd_prob_grid.pkl")
-    prob_grid_normal_df = pd.read_pickle("normal_prob_grid.pkl")
-    in_csv_filepath = "opticom_res_tidy.csv"
+    prob_grid_normal_df = pd.read_pickle("qnormal_prob_grid.pkl")
+
+    filepath_cli_idx = 3
+    in_csv_filepath = Path(_argv[filepath_cli_idx])
+    assert in_csv_filepath.exists() and in_csv_filepath.is_file(), f"Make sure the {_argv[filepath_cli_idx]} file " \
+                                                                   f"exists"
 
     n_chunks_argv_idx = 1
     chunk_idx_argv_idx = 2
@@ -78,6 +84,7 @@ def main(_argv):
     pvs_id_exp_grouped_scores = preprocess_real_data(in_csv_filepath, should_also_group_by_exp=True)
     keys_for_coi = read_input_data_subsection(pvs_id_exp_grouped_scores, n_chunks, chunk_idx)
 
+    # TODO 1. Use in the output CSV filename the filename of the input CSV file
     csv_results_filename = "G_test_on_opticom_data" + "_chunk{:03d}_".format(chunk_idx) + \
                            "of_{:03d}".format(n_chunks) + ".csv"
     logger.info("Storing the results in the {} file".format(csv_results_filename))
