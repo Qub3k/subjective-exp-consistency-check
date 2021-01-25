@@ -148,12 +148,12 @@ def reproduce_table_two(g_test_res_csv_filepath="G_test_results.csv"):
     # pval - p-value; exp - experiment
     pval_per_exp = check_consistency_of_all_experiments(g_test_res_csv_filepath)
     print("\nReproducing Tab. 2")
-    print("="*18)
+    print("=" * 18)
     default_float_format = pd.get_option("float_format")
     pd.set_option("float_format", "{:.5f}".format)
     # ser - Pandas Series; oi - of interest
     ser_oi = pval_per_exp.loc[[Experiment.ITS4S2, Experiment.ITS4S_AGH, Experiment.ITS4S_NTIA,
-                              Experiment.MM2_IRCCYN_LAB], "pvalue"]
+                               Experiment.MM2_IRCCYN_LAB], "pvalue"]
     print(ser_oi)
     pd.set_option("float_format", default_float_format)
     out_csv_filename = "table_two_pvals.csv"
@@ -170,7 +170,7 @@ def reproduce_figure_three(g_test_res_csv_filepath="G_test_results.csv"):
     :return: nothing
     """
     print("\nReproducing Fig. 3")
-    print("="*18)
+    print("=" * 18)
     # Read the G-test of GoF p-values relevant for the analysis. res - results
     g_test_results = pd.read_csv(g_test_res_csv_filepath)
     hdtv1_res = g_test_results.groupby("Exp").get_group(Experiment.HDTV1.value)
@@ -265,6 +265,7 @@ def process_input_parameters():
 
     :return: argparse.Namespace with input parameters processed
     """
+
     def positive_int(string):
         if int(string) > 0:
             return int(string)
@@ -286,13 +287,16 @@ def process_input_parameters():
 
 def main():
     args = process_input_parameters()
-    if args.scenario == Scenario.REPRODUCE_ALL:
+    if args.scenario == Scenario.REPRODUCE_ALL.value:
         print("Reproducing G-test results for all the 21 experiments...")
-        # TODO 1. Generate G-test results for all 21 experiments (using the G_test_on_real_data.py script)
-        G_test_on_real_data.main(["1", "0", "subjective_quality_datasets.csv"])
-        g_test_res_csv_filepath="G_test_on_subjective_quality_datasets_chunk000_of_001.csv"
+        # The first argument is empty since it is not used, but must be there. The second argument asks to split the
+        # input data into one chunk only (i.e., it asks not to split the data). The third argument asks to process the
+        # chunk at 0-th index. The last argument specifies a CSV file with subjective responses from which to read the
+        # input data.
+        G_test_on_real_data.main(["", "1", "0", "subjective_quality_datasets.csv"])
+        g_test_res_csv_filepath = "G_test_on_subjective_quality_datasets_chunk000_of_001.csv"
     else:
-        g_test_res_csv_filepath="G_test_results.csv"
+        g_test_res_csv_filepath = "G_test_results.csv"
     reproduce_table_one()  # Does not depend on the choice of the scenario
     reproduce_table_two(g_test_res_csv_filepath)
     if args.scenario == Scenario.USE_EXISTING_RES.value or args.scenario == Scenario.REPRODUCE_ALL.value:
