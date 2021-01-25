@@ -303,6 +303,7 @@ def main():
         reproduce_figure_three(g_test_res_csv_filepath)
     else:  # Scenario.FOR_FIG_THREE_ONLY
         reproduce_g_test_results_and_fig_three()
+    # TODO 1. When reproducing Fig. 3 G-test results use them with Tab. 3 and 4 as well
     reproduce_table_three(g_test_res_csv_filepath)
     reproduce_table_four(g_test_res_csv_filepath)
     return

@@ -97,6 +97,8 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
     observable data (available through *data_grouped*). To speed-up the computations the function uses a pre-calculated
     probability grid (*prob_grid_gsd*).
 
+    TODO 2. Allow to choose how the column with p-values is called (or otherwise solve this issue)
+
     :param keys_for_coi: a list of DataFrameGroupBy keys identifying stimuli relevant for a chunk of interest (coi)
     :param data_grouped: subjective scores grouped by a stimulus identifier
     :param prob_grid_gsd: pre-computed probability grid of observing each answer, assuming the GSD model with a given
