@@ -105,7 +105,8 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
     """
     logger.info("There are {} stimuli to process".format(len(keys_for_coi)))
 
-    g_test_res = pd.DataFrame(columns=["stimulus_id", "psi_hat", "rho_hat", "T", "p_value"], index=keys_for_coi)
+    g_test_res = pd.DataFrame(columns=["stimulus_id", "psi_hat", "rho_hat", "T", "p_value", "count1", "count2",
+                                       "count3", "count4", "count5"], index=keys_for_coi)
 
     # Perform the G-test for each stimulus
     it_num = 1  # monitor iteration number
@@ -163,6 +164,11 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
         g_test_res.loc[[key_for_coi], "rho_hat"] = rho_hat
         g_test_res.loc[[key_for_coi], "T"] = T_statistic_gsd
         g_test_res.loc[[key_for_coi], "p_value"] = p_value_g_test_gsd
+        g_test_res.loc[[key_for_coi], "count1"] = score_counts[0]
+        g_test_res.loc[[key_for_coi], "count2"] = score_counts[1]
+        g_test_res.loc[[key_for_coi], "count3"] = score_counts[2]
+        g_test_res.loc[[key_for_coi], "count4"] = score_counts[3]
+        g_test_res.loc[[key_for_coi], "count5"] = score_counts[4]
 
         it_num += 1
 
