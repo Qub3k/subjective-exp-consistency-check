@@ -279,7 +279,12 @@ def process_input_parameters():
                                                             "choice: (1) Redraw and reproduce figures and tables using"
                                                             " the existing G-test results. (2) Reproduce only these"
                                                             " G-test results that are necessary for Fig. 3."
-                                                            " (3) Reproduce all G-test results.")
+                                                            " (3) Reproduce all G-test results.\n\n"
+                                                            "Importantly, scenario 1 needs almost no time to run. "
+                                                            "Scenario 2 needs around 224 hours (more than 9 days), "
+                                                            "whereas scenario 3 needs around 509 hours (more than "
+                                                            "21 days). Read about the batch processing capability "
+                                                            "to deal with these long execution times.")
     args = parser.parse_args()
     assert args.scenario < 4, "Please choose either scenario 1, 2 or 3."
     return args
