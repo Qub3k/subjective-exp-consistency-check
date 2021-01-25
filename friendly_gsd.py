@@ -276,7 +276,7 @@ def main():
                                               filename_addition=in_csv_filename_wo_ext)
 
     # Store G-test results in a CSV file
-    csv_filename = "_".join(["G-test", in_csv_filename_wo_ext, f"_chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
+    csv_filename = "_".join(["G_test_on", in_csv_filename_wo_ext, f"_chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
     logger.info(f"Storing the results of G-test of goodness-of-fit in the {csv_filename} file")
     g_test_res.to_csv(csv_filename, index=False)
     return
