@@ -18,6 +18,7 @@ from scipy.stats import norm
 from friendly_gsd import draw_p_value_pp_plot
 import friendly_gsd
 import argparse
+import G_test_on_real_data
 
 
 class Scenario(Enum):
@@ -136,18 +137,16 @@ def reproduce_table_one():
     return
 
 
-def reproduce_table_two(scenario=Scenario.USE_EXISTING_RES):
+def reproduce_table_two(g_test_res_csv_filepath="G_test_results.csv"):
     """
     Reproduces Tab. 2 from the original paper.
 
-    TODO 2.1 Use G-test results relevant to the given scenario
-
-    :param scenario: execution scenario to use
+    :param g_test_res_csv_filepath: a filepath to a file with G-test results to use
     :return: nothing
     """
     print("\nRunning computations necessary for reproduction of Tab.2...\n")
     # pval - p-value; exp - experiment
-    pval_per_exp = check_consistency_of_all_experiments()
+    pval_per_exp = check_consistency_of_all_experiments(g_test_res_csv_filepath)
     print("\nReproducing Tab. 2")
     print("="*18)
     default_float_format = pd.get_option("float_format")
@@ -163,19 +162,17 @@ def reproduce_table_two(scenario=Scenario.USE_EXISTING_RES):
     return
 
 
-def reproduce_figure_three(scenario=Scenario.USE_EXISTING_RES):
+def reproduce_figure_three(g_test_res_csv_filepath="G_test_results.csv"):
     """
     Reproduces Fig. 3 from the original paper.
 
-    TODO 2.4 Use G-test results relevant to the given scenario
-
-    :param scenario: execution scenario to use
+    :param g_test_res_csv_filepath: a filepath to a file with G-test results to use
     :return: nothing
     """
     print("\nReproducing Fig. 3")
     print("="*18)
-    # Read the G-test of GoF p-values relevant for the analysis
-    g_test_results = pd.read_csv("G_test_results.csv")
+    # Read the G-test of GoF p-values relevant for the analysis. res - results
+    g_test_results = pd.read_csv(g_test_res_csv_filepath)
     hdtv1_res = g_test_results.groupby("Exp").get_group(Experiment.HDTV1.value)
     its4s2_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S2.value)
     its4s_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S_AGH.value)
@@ -193,19 +190,17 @@ def reproduce_figure_three(scenario=Scenario.USE_EXISTING_RES):
     return
 
 
-def reproduce_table_three(scenario=Scenario.USE_EXISTING_RES):
+def reproduce_table_three(g_test_res_csv_filepath="G_test_results.csv"):
     """
     Reproduces Tab. 3 from the original paper.
 
-    TODO 2.2 Use G-test results relevant to the given scenario
-
-    :param scenario: execution scenario to use
+    :param g_test_res_csv_filepath: a filepath to a file with G-test results to use
     :return: nothing
     """
     print("\nReproducing Tab. 3")
     print("=" * 18)
     # Read five stimuli with the lowest p-value from the ITS4S_AGH experiment
-    g_test_results = pd.read_csv("G_test_results.csv")
+    g_test_results = pd.read_csv(g_test_res_csv_filepath)
     its4s_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S_AGH.value)
     # Sort the results according to GSD p-value
     sorted_its4s_res = its4s_res.sort_values(by="p-value_gsd")
@@ -222,19 +217,17 @@ def reproduce_table_three(scenario=Scenario.USE_EXISTING_RES):
     return
 
 
-def reproduce_table_four(scenario=Scenario.USE_EXISTING_RES):
+def reproduce_table_four(g_test_res_csv_filepath="G_test_results.csv"):
     """
     Reproduces Tab. 4 from the original paper.
 
-    TODO 2.3 Use G-test results relevant to the given scenario
-
-    :param scenario: execution scenario to use
+    :param g_test_res_csv_filepath: a filepath to a file with G-test results to use
     :return: nothing
     """
     print("\nReproducing Tab. 4")
     print("=" * 18)
     # Read five stimuli with the lowest p-value from the ITS4S2 experiment
-    g_test_results = pd.read_csv("G_test_results.csv")
+    g_test_results = pd.read_csv(g_test_res_csv_filepath)
     its4s2_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S2.value)
     # Sort the results according to GSD p-value
     sorted_its4s2_res = its4s2_res.sort_values(by="p-value_gsd")
@@ -296,15 +289,18 @@ def main():
     if args.scenario == Scenario.REPRODUCE_ALL:
         print("Reproducing G-test results for all the 21 experiments...")
         # TODO 1. Generate G-test results for all 21 experiments (using the G_test_on_real_data.py script)
+        G_test_on_real_data.main(["1", "0", "subjective_quality_datasets.csv"])
+        g_test_res_csv_filepath="G_test_on_subjective_quality_datasets_chunk000_of_001.csv"
+    else:
+        g_test_res_csv_filepath="G_test_results.csv"
     reproduce_table_one()  # Does not depend on the choice of the scenario
-    reproduce_table_two(scenario=args.scenario)
+    reproduce_table_two(g_test_res_csv_filepath)
     if args.scenario == Scenario.USE_EXISTING_RES.value or args.scenario == Scenario.REPRODUCE_ALL.value:
-        reproduce_figure_three(scenario=args.scenario)
+        reproduce_figure_three(g_test_res_csv_filepath)
     else:  # Scenario.FOR_FIG_THREE_ONLY
         reproduce_g_test_results_and_fig_three()
-    # TODO 2. Use the G-test results that are in accordance to the execution scenario when reproducing Tab. 3 & 4
-    reproduce_table_three(scenario=args.scenario)
-    reproduce_table_four(scenario=args.scenario)
+    reproduce_table_three(g_test_res_csv_filepath)
+    reproduce_table_four(g_test_res_csv_filepath)
     return
 
 
