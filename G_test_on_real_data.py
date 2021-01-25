@@ -84,7 +84,7 @@ def main(_argv):
     pvs_id_exp_grouped_scores = preprocess_real_data(in_csv_filepath, should_also_group_by_exp=True)
     keys_for_coi = read_input_data_subsection(pvs_id_exp_grouped_scores, n_chunks, chunk_idx)
 
-    in_csv_filename_wo_ext = in_csv_filepath.name.split(".")[0]  # wo - without, ex - extension
+    in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
     csv_results_filename = "G_test_on_" + in_csv_filename_wo_ext + "_chunk{:03d}_".format(chunk_idx) + \
                            "of_{:03d}".format(n_chunks) + ".csv"
     logger.info("Storing the results in the {} file".format(csv_results_filename))
