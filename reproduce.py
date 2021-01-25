@@ -63,13 +63,14 @@ def check_consistency_of_all_experiments(g_test_res_csv_filepath="G_test_results
     analysis described in the original paper, but with alpha being constant and equal to *conj_alpha*.
 
     Null hypothesis: The fraction of stimuli with score distribution not compliant with the GSD is not greater than
-        *conj_alpha*. (Note that we treat as not compliant with the GSD all stimuli, which score distribution get
-        assigned by the G-test of goodness-of-fite a p-value below *conj_alpha*.)
+    *conj_alpha*. (Note that we treat as not compliant with the GSD all stimuli, which score distribution get
+    assigned by the G-test of goodness-of-fite a p-value below *conj_alpha*.)
+
     Alternative hypothesis: The fraction of stimuli with score distribution not compliant with the GSD is greater than
-        *conj_alpha*.
+    *conj_alpha*.
 
     WARNING: Treat the results of this analysis as a preliminary view on experiment consistency. Generate a P–P plot
-        to get the complete view of the situation.
+    to get the complete view of the situation.
 
     :param g_test_res_csv_filepath: a filepath of the CSV file with G-test results
     :param conj_alpha: conjectured alpha (i.e., the fraction of stimuli that do not follow the GSD)
@@ -129,7 +130,7 @@ def reproduce_table_one():
     print(df_oi)
     pd.set_option("float_format", default_float_format)
     df_oi_float = df_oi.astype(float)
-    out_csv_filename = "table_one_score_counts.csv"
+    out_csv_filename = "table_one_score_distribution.csv"
     df_oi_float.to_csv(out_csv_filename, float_format="%.3f")
     print(f"Stored Tab. 1 in the {out_csv_filename} file")
     return
@@ -251,7 +252,7 @@ def reproduce_table_four(scenario=Scenario.USE_EXISTING_RES):
 
 
 def reproduce_g_test_results_and_fig_three():
-    print("Reproducing G-test p-values")
+    print("\nReproducing G-test p-values")
     print("=" * 27)
     print("(and generating related P–P plots—--cf. Fig. 3 in the original paper)")
     print("Processing the AGH/NTIA experiment...")
