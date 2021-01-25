@@ -17,6 +17,7 @@ import numpy as np
 from scipy.stats import norm
 from friendly_gsd import draw_p_value_pp_plot
 import friendly_gsd
+import argparse
 
 
 class Experiment(Enum):
@@ -223,7 +224,32 @@ def reproduce_g_test_results_and_fig_three():
     return
 
 
+def process_input_parameters():
+    """
+    Processes parameters supplied by the user
+
+    :return: argparse.Namespace with input parameters processed
+    """
+    def positive_int(string):
+        if int(string) > 0:
+            return int(string)
+        else:
+            raise argparse.ArgumentTypeError(f"{string} is not a positive integer. Please supply a positive integer.")
+
+    parser = argparse.ArgumentParser(description="Allows to reproduce all the experiments in the Nawała et al. "
+                                                 "Describing Subjective Experiment Consistency by p-Value P-P Plot "
+                                                 "paper from ACM MM'20.")
+    parser.add_argument("scenario", type=positive_int, help="a digit (1–3) corresponding to an execution scenario of "
+                                                            "choice: (1) Redraw and reproduce figures and tables using"
+                                                            " the existing G-test results. (2) Reproduce only these"
+                                                            " G-test results that are necessary for Fig. 3."
+                                                            " (3) Reproduce all G-test results.", default=1)
+    args = parser.parse_args()
+    return args
+
+
 def main():
+    args = process_input_parameters()
     # TODO 1. Generate G-test results for all 21 experiments
     reproduce_g_test_results_and_fig_three()
     reproduce_table_one()
