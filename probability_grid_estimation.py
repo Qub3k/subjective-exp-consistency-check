@@ -20,7 +20,7 @@ import csv
 from scipy.special import binom
 
 logger = setup_console_and_file_logger(name=__name__, log_file_name="probability_grid_estimation.log",
-                                       level=logging.DEBUG)
+                                       level=logging.INFO)
 
 # Done to make sure this grid is computed only once
 log_prob_grid_gsd_df = None
