@@ -90,7 +90,7 @@ python3 friendly_gsd.py hdtv1_exp1_scores_pp_plot_ready.csv
 ```
 
 Executing the script this way we ask it to process all 168 stimuli from the first experiment of the HDTV Phase
-I test. **Please be adviced that this may take long time to finish**. Our internal trials on consumer-grade laptop (as
+I test. **Please be advised that this may take long time to finish**. Our internal trials on consumer-grade laptop (as
 of 2020) indicate that it takes around 5 minutes to process a single stimulus. This is why the script supports
 batch processing. More details on this subject are in [the Batch Processing section](#batch-processing).
 
@@ -148,8 +148,10 @@ this two-step procedure:
 After the modifications the relevant code fragment should look as follows.
 ```python
 # res - results
-g_test_res = perform_g_test(keys_for_coi, data_stimulus_grouped, prob_grid_gsd,
-                            score_col_identifier=args.score_identifier, n_bootstrap_samples=1)
+g_test_res = perform_g_test(keys_for_coi, data_grouped, prob_grid_gsd,
+                            score_col_identifier=args.score_identifier,
+                            grouped_also_by_experiment=args.group_also_by_experiment,
+                            n_bootstrap_samples=1)
 
 # Visualise G-test results in a form of p-value pp-plot
 # pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res)

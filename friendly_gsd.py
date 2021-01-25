@@ -17,7 +17,7 @@ from scipy.stats import norm
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from G_test_on_real_data import read_input_data_subsection
-from probability_grid_estimation import get_answer_counts, estimate_parameters
+from probability_grid_estimation import get_answer_counts, estimate_parameters, preprocess_real_data
 
 mpl.rcParams["backend"] = "TkAgg"
 mpl.rcParams["interactive"] = True
@@ -73,12 +73,17 @@ def proces_input_parameters():
     parser.add_argument("-o", "--score-identifier", help="header of a column containing scores. It defaults to"
                                                          " score.",
                         metavar="identifier", default="score")
+    parser.add_argument("-e", "--group-also-by-experiment", help="when reading the results group both by stimulus and "
+                                                                 "experiment identifiers. This is necessary when "
+                                                                 "dealing with data where stimulus identifier is not "
+                                                                 "unique across different experiments.",
+                        action="store_true")
     args = parser.parse_args()
     return args
 
 
 def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, prob_grid_gsd: pd.DataFrame,
-                   n_bootstrap_samples=10000, score_col_identifier="score"):
+                   n_bootstrap_samples=10000, score_col_identifier="score", grouped_also_by_experiment=False):
     """
     Perform bootstrapped G-test of goodness-of-fit (GoF) on scores of each stimulus for a given chunk of data (as
     identified by *keys_for_coi*). The G-test assesses how well the Generalized Score Distribution (GSD) fits the
@@ -93,18 +98,26 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
      approximation precision. For example, for the default 10,000, the p-value is approximated with the precision of
      0.0001.
     :param score_col_identifier: a column header identifying the column with scores
+    :param grouped_also_by_experiment: a flag indicating whether the keys in *keys_for_coi* are tuples (i.e., input data
+     was grouped both by stimulus and experiment identifiers; this flag should be set to True) or not.
     :return: a DataFrame with G-test results (i.e., estimated GSD parameters, T statistic of the test, p-value of the
      test). Importantly, the DataFrame is indexed with stimulus identifiers
     """
     logger.info("There are {} stimuli to process".format(len(keys_for_coi)))
 
-    g_test_res = pd.DataFrame(columns=["psi_hat", "rho_hat", "T", "p_value"], index=keys_for_coi)
+    g_test_res = pd.DataFrame(columns=["stimulus_id", "psi_hat", "rho_hat", "T", "p_value"], index=keys_for_coi)
 
     # Perform the G-test for each stimulus
     it_num = 1  # monitor iteration number
-    for stimulus_id in keys_for_coi:
-        logger.info(f"Processing stimulus number {it_num}")
-        stimulus_data = data_grouped.get_group(stimulus_id)
+    for key_for_coi in keys_for_coi:
+        if grouped_also_by_experiment:
+            stimulus_id = key_for_coi[0]
+            experiment_id = key_for_coi[1]
+            logger.info(f"Processing stimulus number {it_num} from experiment {experiment_id}")
+        else:
+            stimulus_id = key_for_coi
+            logger.info(f"Processing stimulus number {it_num}")
+        stimulus_data = data_grouped.get_group(key_for_coi)
         sample_scores = stimulus_data[score_col_identifier]
         score_counts = np.array(get_answer_counts(sample_scores))
 
@@ -145,8 +158,12 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
         p_value_g_test_gsd = bootstrap.G_test(score_counts, exp_prob_gsd, bootstrap_samples_gsd,
                                               bootstrap_exp_prob_gsd)
 
-        g_test_res.loc[stimulus_id] = pd.Series({"psi_hat": psi_hat_gsd, "rho_hat": rho_hat, "T": T_statistic_gsd,
-                                                 "p_value": p_value_g_test_gsd})
+        g_test_res.loc[[key_for_coi], "stimulus_id"] = stimulus_id
+        g_test_res.loc[[key_for_coi], "psi_hat"] = psi_hat_gsd
+        g_test_res.loc[[key_for_coi], "rho_hat"] = rho_hat
+        g_test_res.loc[[key_for_coi], "T"] = T_statistic_gsd
+        g_test_res.loc[[key_for_coi], "p_value"] = p_value_g_test_gsd
+
         it_num += 1
 
     return g_test_res
@@ -229,17 +246,18 @@ def main():
                                            .format(chunk_idx, n_chunks), level=logging.INFO)
     logger.info("Reading chunk with id {} (of {} total chunks)".format(chunk_idx, n_chunks))
     # Read the appropriate chunk of data
-    subjective_data = pd.read_csv(args.data_csv_filepath)
-    data_stimulus_grouped = subjective_data.groupby(args.stimulus_identifier)
+    data_grouped = preprocess_real_data(args.data_csv_filepath, should_also_group_by_exp=args.group_also_by_experiment,
+                                        stimulus_identifier=args.stimulus_identifier)
     # coi - chunk of interest
-    keys_for_coi = read_input_data_subsection(data_stimulus_grouped, n_chunks, chunk_idx)
+    keys_for_coi = read_input_data_subsection(data_grouped, n_chunks, chunk_idx)
 
     # Perform the bootstrapped G-test of goodness-of-fit on the chunk of data
     # Read the pre-computed probability grid for the GSD model
     prob_grid_gsd = pd.read_pickle(args.pickle)
     # res - results
-    g_test_res = perform_g_test(keys_for_coi, data_stimulus_grouped, prob_grid_gsd,
-                                score_col_identifier=args.score_identifier)
+    g_test_res = perform_g_test(keys_for_coi, data_grouped, prob_grid_gsd,
+                                score_col_identifier=args.score_identifier,
+                                grouped_also_by_experiment=args.group_also_by_experiment)
 
     # Visualise G-test results in a form of p-value pp-plot
     pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res)
@@ -247,7 +265,7 @@ def main():
     # Store G-test results in a CSV file
     csv_filename = "G-test_chunk_id_{}_of_{}_chunks.csv".format(chunk_idx, n_chunks)
     logger.info(f"Storing the results of G-test of goodness-of-fit in the {csv_filename} file")
-    g_test_res.to_csv(csv_filename, index_label="stimulus_id")
+    g_test_res.to_csv(csv_filename, index=False)
     return
 
 

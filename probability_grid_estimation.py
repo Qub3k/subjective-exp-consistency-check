@@ -41,7 +41,8 @@ def get_answer_counts(scores):
 
 
 def preprocess_real_data(subjective_datasets_csv_filepath="subjective_quality_datasets.csv",
-                         should_also_group_by_exp=False):
+                         should_also_group_by_exp=False, stimulus_identifier="PVS_id",
+                         experiment_identifier="Experiment"):
     """
     Fetches the real-life subjective data and converts it to a format convenient for further processing.
 
@@ -49,15 +50,18 @@ def preprocess_real_data(subjective_datasets_csv_filepath="subjective_quality_da
         original GSD paper)
     :param should_also_group_by_exp: a flag indicating whether to additionally group by experiment ID (this function
         groups only by PVS ID be default)
+    :param stimulus_identifier: name of the column in the data that holds stimulus identifiers
+    :param experiment_identifier: name of the column in the data that holds experiment identifiers. (This parameter is
+        used only when *should_also_group_by_exp* is True.)
     :return: a DataFrameGroupBy object with the data grouped by the PVS_id column or by the PVS ID and Experiment
         columns (depending on the should_also_group_by_exp flag).
     """
     subjective_datasets_df = pd.read_csv(subjective_datasets_csv_filepath)
     if should_also_group_by_exp:
-        pvs_id_experiment_grouped = subjective_datasets_df.groupby(["PVS_id", "Experiment"])
+        pvs_id_experiment_grouped = subjective_datasets_df.groupby([stimulus_identifier, experiment_identifier])
         return pvs_id_experiment_grouped
     else:
-        pvs_id_grouped = subjective_datasets_df.groupby("PVS_id")
+        pvs_id_grouped = subjective_datasets_df.groupby(stimulus_identifier)
         return pvs_id_grouped
 
 
