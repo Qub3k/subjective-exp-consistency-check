@@ -26,10 +26,11 @@ plt.style.use("ggplot")
 logger = None
 
 
-def proces_input_parameters():
+def proces_input_parameters(_argv: list):
     """
     Processes parameters supplied by the user
 
+    :param _argv: a list of argument values to use if this script is not called directly from the CLI
     :return: argparse.Namespace with input parameters processed
     """
 
@@ -81,7 +82,10 @@ def proces_input_parameters():
                         action="store_true")
     parser.add_argument("-f", "--store-figure", help="store the P–P plot on the disk instead of displaying it.",
                         action="store_true")
-    args = parser.parse_args()
+    if __name__ != '__main__':
+        args = parser.parse_args(_argv)
+    else:
+        args = parser.parse_args()
     return args
 
 
@@ -241,8 +245,8 @@ def fit_gsd(scores: pd.Series, gsd_prob_grid_filepath="gsd_prob_grid.pkl"):
     return psi_hat, rho_hat
 
 
-def main():
-    args = proces_input_parameters()
+def main(_argv=None):
+    args = proces_input_parameters(_argv)
 
     # Read the input data in chunks
     n_chunks = args.chunks
@@ -276,7 +280,7 @@ def main():
                                               filename_addition=in_csv_filename_wo_ext)
 
     # Store G-test results in a CSV file
-    csv_filename = "_".join(["G_test_on", in_csv_filename_wo_ext, f"_chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
+    csv_filename = "_".join(["G_test_on", in_csv_filename_wo_ext, f"chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
     logger.info(f"Storing the results of G-test of goodness-of-fit in the {csv_filename} file")
     g_test_res.to_csv(csv_filename, index=False)
     return
