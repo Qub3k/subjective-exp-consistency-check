@@ -79,6 +79,8 @@ def proces_input_parameters():
                                                                  "dealing with data where stimulus identifier is not "
                                                                  "unique across different experiments.",
                         action="store_true")
+    parser.add_argument("-f", "--store-figure", help="store the P–P plot on the disk instead of displaying it.",
+                        action="store_true")
     args = parser.parse_args()
     return args
 
@@ -269,11 +271,12 @@ def main():
                                 grouped_also_by_experiment=args.group_also_by_experiment)
 
     # Visualise G-test results in a form of p-value pp-plot
-    pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res)
+    in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
+    pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res, should_store_figure=args.store_figure,
+                                              filename_addition=in_csv_filename_wo_ext)
 
     # Store G-test results in a CSV file
-    in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
-    csv_filename = "_".join(["G-test_chunk", in_csv_filename_wo_ext, f"id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
+    csv_filename = "_".join(["G-test", in_csv_filename_wo_ext, f"_chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
     logger.info(f"Storing the results of G-test of goodness-of-fit in the {csv_filename} file")
     g_test_res.to_csv(csv_filename, index=False)
     return
