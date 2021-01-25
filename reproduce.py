@@ -16,6 +16,7 @@ from enum import Enum
 import numpy as np
 from scipy.stats import norm
 from friendly_gsd import draw_p_value_pp_plot
+import friendly_gsd
 
 
 class Experiment(Enum):
@@ -207,7 +208,15 @@ def reproduce_table_four():
     return
 
 
+def reproduce_g_test_results():
+    # TODO 1.1 Generate G-test p-values for the AGH/NTIA experiment -> call the friendly_gsd.py script
+    friendly_gsd.main(["-s", "PVS_id", "-o", "Score", "-e", "-f", "reproducibility/agh_ntia_results.csv"])
+    return
+
+
 def main():
+    # TODO 1. Regenerate relevant G-test p-values (for the four plots in Fig. 3)
+    reproduce_g_test_results()
     reproduce_table_one()
     reproduce_table_two()
     reproduce_figure_three()
