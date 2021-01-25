@@ -18,6 +18,7 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 from G_test_on_real_data import read_input_data_subsection
 from probability_grid_estimation import get_answer_counts, estimate_parameters, preprocess_real_data
+from pathlib import Path
 
 mpl.rcParams["backend"] = "TkAgg"
 mpl.rcParams["interactive"] = True
@@ -252,7 +253,9 @@ def main():
                                            .format(chunk_idx, n_chunks), level=logging.INFO)
     logger.info("Reading chunk with id {} (of {} total chunks)".format(chunk_idx, n_chunks))
     # Read the appropriate chunk of data
-    data_grouped = preprocess_real_data(args.data_csv_filepath, should_also_group_by_exp=args.group_also_by_experiment,
+    in_csv_filepath = Path(args.data_csv_filepath)
+    assert in_csv_filepath.exists() and in_csv_filepath.is_file(), f"Make sure the {in_csv_filepath} file exists"
+    data_grouped = preprocess_real_data(in_csv_filepath, should_also_group_by_exp=args.group_also_by_experiment,
                                         stimulus_identifier=args.stimulus_identifier)
     # coi - chunk of interest
     keys_for_coi = read_input_data_subsection(data_grouped, n_chunks, chunk_idx)
@@ -269,7 +272,8 @@ def main():
     pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res)
 
     # Store G-test results in a CSV file
-    csv_filename = "G-test_chunk_id_{}_of_{}_chunks.csv".format(chunk_idx, n_chunks)
+    in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
+    csv_filename = "_".join(["G-test_chunk", in_csv_filename_wo_ext, f"id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
     logger.info(f"Storing the results of G-test of goodness-of-fit in the {csv_filename} file")
     g_test_res.to_csv(csv_filename, index=False)
     return
