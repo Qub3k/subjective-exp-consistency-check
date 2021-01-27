@@ -19,6 +19,7 @@ from friendly_gsd import draw_p_value_pp_plot
 import friendly_gsd
 import argparse
 import G_test_on_real_data
+import random
 
 
 class Scenario(Enum):
@@ -28,6 +29,7 @@ class Scenario(Enum):
     USE_EXISTING_RES = 1
     FOR_FIG_THREE_ONLY = 2
     REPRODUCE_ALL = 3
+    RANDOM_STIMULI = 4  # run the G-test for N randomly selected stimuli
 
 
 class Experiment(Enum):
@@ -275,6 +277,35 @@ def reproduce_g_test_results_and_fig_three():
     return
 
 
+def run_g_test_for_random_stimuli(n_stimuli: int = 3):
+    """
+    Runs the G-test of goodness-of-fit for *n_stimuli* randomly selected stimuli.
+
+    :param n_stimuli: the number of stimuli for which to run the G-test
+    :return: nothing yet
+    """
+    # Read subjective results
+    data_filepath = "subjective_quality_datasets.csv"
+    data_grouped = friendly_gsd.preprocess_real_data(data_filepath, should_also_group_by_exp=True)
+    # Randomly choose *n_stimuli* stimuli
+    group_keys = list(data_grouped.groups.keys())
+    total_n_stimuli = len(group_keys)  # the total number of stimuli
+    n_rand_stimuli_idx = random.sample(range(total_n_stimuli), n_stimuli)  # indexes of *n_stimuli* random stimuli
+    # Run the G-test for the selected stimuli
+    print(f"Running the G-test of goodness-of-fit for the following stimuli: {n_rand_stimuli_idx}")
+    keys_oi = [group_keys[stimulus_idx] for stimulus_idx in n_rand_stimuli_idx]  # oi - of interest
+    prob_grid_gsd = pd.read_pickle("gsd_prob_grid.pkl")
+    g_test_res = friendly_gsd.perform_g_test(keys_oi, data_grouped, prob_grid_gsd, grouped_also_by_experiment=True,
+                                             score_col_identifier="Score")
+    # Print the results and store them in a CSV file
+    csv_filename = "g_test_res_for_random_stimuli.csv"
+    g_test_res.to_csv(csv_filename, index_label="exp_id_stimulus_id")
+    print("Summary of G-test results:")
+    print(g_test_res[["psi_hat", "rho_hat", "p_value"]])
+    print(f"Stored the G-test results in the {csv_filename} file")
+    return
+
+
 def process_input_parameters():
     """
     Processes parameters supplied by the user
@@ -291,7 +322,7 @@ def process_input_parameters():
     parser = argparse.ArgumentParser(description="Allows to reproduce all the experiments in the Nawała et al. "
                                                  "Describing Subjective Experiment Consistency by p-Value P-P Plot "
                                                  "paper from ACM MM'20.")
-    parser.add_argument("scenario", type=positive_int, help="a digit (1–3) corresponding to an execution scenario of "
+    parser.add_argument("scenario", type=positive_int, help="a digit (1–4) corresponding to an execution scenario of "
                                                             "choice: (1) Redraw and reproduce figures and tables using"
                                                             " the existing G-test results. (2) Reproduce only these"
                                                             " G-test results that are necessary for Fig. 3."
@@ -299,15 +330,22 @@ def process_input_parameters():
                                                             "Importantly, scenario 1 needs almost no time to run. "
                                                             "Scenario 2 needs around 224 hours (more than 9 days), "
                                                             "whereas scenario 3 needs around 509 hours (more than "
-                                                            "21 days). Read about the batch processing capability "
-                                                            "to deal with these long execution times.")
+                                                            "21 days). (Read about the batch processing capability "
+                                                            "to deal with these long execution times.) (4) Run the "
+                                                            "G-test for N randomly selected stimuli.")
+    parser.add_argument("-n", "--number-of-stimuli", help="run the G-test for this many stimuli (only relevant when "
+                                                          "used in conjunction with scenario 4)", metavar="N", type=int)
     args = parser.parse_args()
-    assert args.scenario < 4, "Please choose either scenario 1, 2 or 3."
+    assert 0 < args.scenario < 5, "Please choose either scenario 1, 2, 3 or 4."
     return args
 
 
 def main():
     args = process_input_parameters()
+    scenario = Scenario(args.scenario)
+    if scenario == Scenario.RANDOM_STIMULI:
+        run_g_test_for_random_stimuli(n_stimuli=args.number_of_stimuli)
+        return
     if args.scenario == Scenario.REPRODUCE_ALL.value:
         print("Reproducing G-test results for all the 21 experiments...")
         # The first argument is empty since it is not used, but must be there. The second argument asks to split the

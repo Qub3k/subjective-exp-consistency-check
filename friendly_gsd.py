@@ -112,6 +112,10 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
     :return: a DataFrame with G-test results (i.e., estimated GSD parameters, T statistic of the test, p-value of the
      test). Importantly, the DataFrame is indexed with stimulus identifiers
     """
+    global logger
+    if logger is None:  # in case this function is run from outside of this script
+        logger = setup_console_and_file_logger(name=__name__, log_file_name=splitext(argv[0])[0] + ".log",
+                                               level=logging.INFO)
     logger.info("There are {} stimuli to process".format(len(keys_for_coi)))
 
     g_test_res = pd.DataFrame(columns=["stimulus_id", "psi_hat", "rho_hat", "T", "p_value", "count1", "count2",

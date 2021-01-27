@@ -142,3 +142,4 @@ p-value_pp-plot*.pdf
 /table_one_score_distribution.csv
 /table_two_pvals.csv
 /G_test_on_*.csv
+/g_test_res_for_random_stimuli.csv
