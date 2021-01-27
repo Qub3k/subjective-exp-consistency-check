@@ -299,7 +299,7 @@ def run_g_test_for_random_stimuli(n_stimuli: int = 3):
                                              score_col_identifier="Score")
     # Print the results and store them in a CSV file
     csv_filename = "g_test_res_for_random_stimuli.csv"
-    g_test_res.to_csv(csv_filename, index_label="exp_id_stimulus_id")
+    g_test_res.to_csv(csv_filename, index_label="stimulus_id_exp_id")
     print("Summary of G-test results:")
     print(g_test_res[["psi_hat", "rho_hat", "p_value"]])
     print(f"Stored the G-test results in the {csv_filename} file")
