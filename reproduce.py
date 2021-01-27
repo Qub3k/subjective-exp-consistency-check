@@ -225,26 +225,34 @@ def reproduce_table_three(scenario: Scenario, g_test_res_csv_filepath="G_test_re
     return
 
 
-def reproduce_table_four(g_test_res_csv_filepath="G_test_results.csv"):
+def reproduce_table_four(scenario: Scenario, g_test_res_csv_filepath="G_test_results.csv"):
     """
     Reproduces Tab. 4 from the original paper.
 
+    :param scenario: active execution scenario (relevant if G-test results for Fig. 3 have been reproduced)
     :param g_test_res_csv_filepath: a filepath to a file with G-test results to use
     :return: nothing
     """
     print("\nReproducing Tab. 4")
     print("=" * 18)
     # Read five stimuli with the lowest p-value from the ITS4S2 experiment
-    g_test_results = pd.read_csv(g_test_res_csv_filepath)
-    its4s2_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S2.value)
+    # Use different CSV file when G-test results for Fig. 3 have been reproduced
+    if scenario == Scenario.FOR_FIG_THREE_ONLY:
+        g_test_res_csv_filepath = "G_test_on_its4s2_results_chunk_id_0_of_1_chunks.csv"
+        its4s2_res = pd.read_csv(g_test_res_csv_filepath)
+        pval_header = "p_value"  # pval - p-value
+    else:
+        g_test_results = pd.read_csv(g_test_res_csv_filepath)
+        its4s2_res = g_test_results.groupby("Exp").get_group(Experiment.ITS4S2.value)
+        pval_header = "p-value_gsd"
     # Sort the results according to GSD p-value
-    sorted_its4s2_res = its4s2_res.sort_values(by="p-value_gsd")
+    sorted_its4s2_res = its4s2_res.sort_values(by=pval_header)
     # Take results for the 5 lowest p-values and store in a CSV file
     five_lowest_its4s2 = sorted_its4s2_res.head(n=5)
     # Change the index from numerical to f, g, h, i, j. li - letter index
     li_five_lowest_its4s2 = five_lowest_its4s2.set_index(pd.Index(['f', 'g', 'h', 'i', 'j']))
     # coi - columns of interest
-    li_five_lowest_its4s2_coi = li_five_lowest_its4s2[["count1", "count2", "count3", "count4", "count5", "p-value_gsd"]]
+    li_five_lowest_its4s2_coi = li_five_lowest_its4s2[["count1", "count2", "count3", "count4", "count5", pval_header]]
     print(li_five_lowest_its4s2_coi)
     out_csv_filename = "table_four_five_lowest_pvalue_res_its4s2.csv"
     li_five_lowest_its4s2_coi.to_csv(out_csv_filename, index_label="ID")
@@ -316,9 +324,8 @@ def main():
         reproduce_figure_three(g_test_res_csv_filepath)
     else:  # Scenario.FOR_FIG_THREE_ONLY
         reproduce_g_test_results_and_fig_three()
-    # TODO 1. When reproducing Fig. 3 G-test results use them with Tab. 3 and 4 as well
     reproduce_table_three(Scenario(args.scenario), g_test_res_csv_filepath)
-    reproduce_table_four(g_test_res_csv_filepath)
+    reproduce_table_four(Scenario(args.scenario), g_test_res_csv_filepath)
     return
 
 
