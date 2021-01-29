@@ -324,7 +324,7 @@ def reproduce_figure_one():
 
 
 def reproduce_probability_grids():
-    print("Reproducing probability grids")
+    print("\nReproducing probability grids")
     print("=" * 29)
     # Reproduce GSD's probability grid
     psi_vector = np.around(np.linspace(1.01, 4.99, num=399), decimals=2)  # for testing: np.array([1.01])
@@ -339,7 +339,7 @@ def reproduce_probability_grids():
     qnormal_prob_grid = get_each_answer_probability_for_qnormal(qnormal_psi_vector, sigma_vector)
     qnormal_prob_grid_pkl_filename = "reproduced_qnormal_prob_grid.pkl"
     qnormal_prob_grid.to_pickle(qnormal_prob_grid_pkl_filename)
-    print(f"Stored the reproduced probability grid for the GSD in the {qnormal_prob_grid_pkl_filename} file")
+    print(f"Stored the reproduced probability grid for the QNormal in the {qnormal_prob_grid_pkl_filename} file")
     return
 
 
