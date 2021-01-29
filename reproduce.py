@@ -370,7 +370,8 @@ def process_input_parameters():
                                                             "21 days). (Read about the batch processing capability "
                                                             "to deal with these long execution times.) (4) Run the "
                                                             "G-test for N randomly selected stimuli. (5) Reproduce "
-                                                            "probability grids for the GSD and QNormal models.")
+                                                            "probability grids for the GSD and QNormal models. (This "
+                                                            "takes about an hour.)")
     parser.add_argument("-n", "--number-of-stimuli", help="run the G-test for this many stimuli (only relevant when "
                                                           "used in conjunction with scenario 4)", metavar="N", type=int)
     args = parser.parse_args()
