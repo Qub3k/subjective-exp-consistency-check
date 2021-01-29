@@ -20,6 +20,8 @@ import friendly_gsd
 import argparse
 import G_test_on_real_data
 import random
+from probability_grid_estimation import get_each_answer_probability_for_gsd, get_each_answer_probability_for_qnormal,\
+    generate_sigma_grid
 
 
 class Scenario(Enum):
@@ -30,6 +32,7 @@ class Scenario(Enum):
     FOR_FIG_THREE_ONLY = 2
     REPRODUCE_ALL = 3
     RANDOM_STIMULI = 4  # run the G-test for N randomly selected stimuli
+    PROB_GRID = 5  # reproduce GSD's and QNormal's probability grids
 
 
 class Experiment(Enum):
@@ -320,6 +323,26 @@ def reproduce_figure_one():
     return
 
 
+def reproduce_probability_grids():
+    print("Reproducing probability grids")
+    print("=" * 29)
+    # Reproduce GSD's probability grid
+    psi_vector = np.around(np.linspace(1.01, 4.99, num=399), decimals=2)  # for testing: np.array([1.01])
+    rho_vector = np.around(np.linspace(.0025, 1, num=400), decimals=4)  # for testing: np.array([.0025])
+    gsd_prob_grid = get_each_answer_probability_for_gsd(psi_vector, rho_vector)
+    gsd_prob_grid_pkl_filename = "reproduced_gsd_prob_grid.pkl"
+    gsd_prob_grid.to_pickle(gsd_prob_grid_pkl_filename)
+    print(f"Stored the reproduced probability grid for the GSD in the {gsd_prob_grid_pkl_filename} file")
+    # Reproduce QNormal's probability grid
+    qnormal_psi_vector = np.around(np.linspace(1, 5, num=401), decimals=2)  # for testing: np.array([1])
+    sigma_vector = generate_sigma_grid()  # for testing: np.array([.01])
+    qnormal_prob_grid = get_each_answer_probability_for_qnormal(qnormal_psi_vector, sigma_vector)
+    qnormal_prob_grid_pkl_filename = "reproduced_qnormal_prob_grid.pkl"
+    qnormal_prob_grid.to_pickle(qnormal_prob_grid_pkl_filename)
+    print(f"Stored the reproduced probability grid for the GSD in the {qnormal_prob_grid_pkl_filename} file")
+    return
+
+
 def process_input_parameters():
     """
     Processes parameters supplied by the user
@@ -336,7 +359,7 @@ def process_input_parameters():
     parser = argparse.ArgumentParser(description="Allows to reproduce all the experiments in the Nawała et al. "
                                                  "Describing Subjective Experiment Consistency by p-Value P-P Plot "
                                                  "paper from ACM MM'20.")
-    parser.add_argument("scenario", type=positive_int, help="a digit (1–4) corresponding to an execution scenario of "
+    parser.add_argument("scenario", type=positive_int, help="a digit (1–5) corresponding to an execution scenario of "
                                                             "choice: (1) Redraw and reproduce figures and tables using"
                                                             " the existing G-test results. (2) Reproduce only these"
                                                             " G-test results that are necessary for Fig. 3."
@@ -346,11 +369,12 @@ def process_input_parameters():
                                                             "whereas scenario 3 needs around 509 hours (more than "
                                                             "21 days). (Read about the batch processing capability "
                                                             "to deal with these long execution times.) (4) Run the "
-                                                            "G-test for N randomly selected stimuli.")
+                                                            "G-test for N randomly selected stimuli. (5) Reproduce "
+                                                            "probability grids for the GSD and QNormal models.")
     parser.add_argument("-n", "--number-of-stimuli", help="run the G-test for this many stimuli (only relevant when "
                                                           "used in conjunction with scenario 4)", metavar="N", type=int)
     args = parser.parse_args()
-    assert 0 < args.scenario < 5, "Please choose either scenario 1, 2, 3 or 4."
+    assert 0 < args.scenario < 6, "Please choose either scenario 1, 2, 3 or 4."
     return args
 
 
@@ -359,6 +383,9 @@ def main():
     scenario = Scenario(args.scenario)
     if scenario == Scenario.RANDOM_STIMULI:
         run_g_test_for_random_stimuli(n_stimuli=args.number_of_stimuli)
+        return
+    elif scenario == Scenario.PROB_GRID:
+        reproduce_probability_grids()
         return
     if args.scenario == Scenario.REPRODUCE_ALL.value:
         print("Reproducing G-test results for all the 21 experiments...")
