@@ -306,6 +306,20 @@ def run_g_test_for_random_stimuli(n_stimuli: int = 3):
     return
 
 
+def reproduce_figure_one():
+    print("\nReproducing Fig. 1")
+    print("=" * 18)
+    # Fetch the results relevant to Fig. 1a and generate a P–P plot
+    consistent_g_test_res = pd.read_csv("reproducibility/teaser_fig_g_test_res_rep0_typ1.csv")
+    draw_p_value_pp_plot(consistent_g_test_res, should_store_figure=True, filename_addition="fig_one_a",
+                         pval_col_id="p-value_gsd")
+    # Fetch the results relevant to Fig. 1b and generate a P–P plot
+    inconsistent_g_test_res = pd.read_csv("reproducibility/teaser_fig_g_test_res_rep0_typ4.csv")
+    draw_p_value_pp_plot(inconsistent_g_test_res, should_store_figure=True, filename_addition="fig_one_b",
+                         pval_col_id="p-value_gsd")
+    return
+
+
 def process_input_parameters():
     """
     Processes parameters supplied by the user
@@ -356,6 +370,7 @@ def main():
         g_test_res_csv_filepath = "G_test_on_subjective_quality_datasets_chunk000_of_001.csv"
     else:
         g_test_res_csv_filepath = "G_test_results.csv"
+    reproduce_figure_one()  # Does not depend on the choice of the scenario
     reproduce_table_one()  # Does not depend on the choice of the scenario
     reproduce_table_two(g_test_res_csv_filepath)
     if args.scenario == Scenario.USE_EXISTING_RES.value or args.scenario == Scenario.REPRODUCE_ALL.value:
