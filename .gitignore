@@ -143,3 +143,7 @@ p-value_pp-plot*.pdf
 /table_two_pvals.csv
 /G_test_on_*.csv
 /g_test_res_for_random_stimuli.csv
+
+# Reproduced probability grids
+/reproduced_gsd_prob_grid.pkl
+/reproduced_qnormal_prob_grid.pkl
