@@ -312,7 +312,60 @@ run `friendly_gsd.py` or `reproduce.py` scripts (in the mode running the G-test)
 they will use the reproduced probability grids.
 
 ## Interpreting the Outputs
-**<font color=red>TODO</font>**: Describe how to interpret `reproduce.py`'s outputs. 
+The listing below shows files generated after running `reproduce.py` with execution
+scenarios 3 and 5.
+```text
+p-value_pp-plot_fig_one_a.pdf
+p-value_pp-plot_fig_one_b.pdf
+table_one_score_distribution.csv
+table_two_pvals.csv
+p-value_pp-plot_HDTV1_fig_three.pdf
+p-value_pp-plot_ITS4S2_fig_three.pdf
+p-value_pp-plot_ITS4S_AGH_fig_three.pdf
+p-value_pp-plot_AGH_NTIA_fig_three.pdf
+table_three_five_lowest_pvalue_res_its4s_agh.csv
+table_four_five_lowest_pvalue_res_its4s2.csv
+G_test_on_subjective_quality_datasets_chunk000_of_001.csv
+reproduced_gsd_prob_grid.pkl
+reproduced_qnormal_prob_grid.pkl
+```
+
+The way in which you can check whether the reproduced results are
+in line with the original results depends on the output type. For figures
+(i.e., all the PDF files),
+you have to perform a visual comparison with those in [Nawała2020]. Since
+the tables are concise you can do the same with these.
+
+The easiest way
+to check the correctness of probability grids (i.e., *.pkl files) is to
+read them into Pandas and subtract from the original grids (i.e.,
+`gsd_prob_grid.pkl` and `qnormal_prob_grid.pkl`). The result should be
+a DataFrame with all cells equal or nearly equal to zero. The code snippet
+below shows how to load into Pandas one reproduced probability grid and
+compare it with the one provided in this repository.
+```python
+import pandas as pd
+
+repro_gsd_grid = pd.read_pickle("reproduced_gsd_prob_grid.pkl")
+gsd_grid = pd.read_pickle("gsd_prob_grid.pkl")
+diff_df = gsd_grid - repro_gsd_grid
+diff_df.sum().sum()  # Output: -4.6074255521944e-15
+```
+
+The reproduced G-test results (i.e., the
+`G_test_on_subjective_quality_datasets_chunk000_of_001.csv` file) can
+be checked for correctness in the similar vain to probability grids. The most
+important column to check is the one called "p-value_gsd". Values in this
+column should be compared with those
+contained in the [G_test_results.csv](G_test_results.csv) file.
+Importantly, please do not expect to observe identical results in both
+files. This is beacuse we use the bootstrapped version of the G-test.
+For each sample analysed we generate 10,000 random bootstrap samples.
+Hence, the final _p_-value changes when you repeat the G-test for the
+same stimulus multiple times. If you want to lear more about this procedure
+please refer to the
+[In-depth Tutorial about Generating *p*-Value P–P Plots for Your Subjective Data](#in-depth-tutorial-about-generating-p-value-pp-plots-for-your-subjective-data)
+section.
 
 # Authorship
 
