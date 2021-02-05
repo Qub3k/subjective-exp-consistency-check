@@ -1,7 +1,10 @@
 # About
 
 This repository stores data, source codes and an in-depth tutorial all related with
-generating *p*-value P&ndash;P plots to assess consistency of subjective data.
+generating *p*-value P&ndash;P plots to assess consistency of subjective data. It
+also provides means to reproduce the results presented in [Nawała2020]. (For more
+information regarding reproducibility please go to the
+[Reproducibility](#reproducibility) section.)
 
 The content of this repository is complementary to the following article. Please cite it if you
 make any use of this repository's content.
@@ -214,6 +217,180 @@ designed our code to be batch processing ready. Differently put, you can run mul
 
 For more details on this subject please take a look at the "Batch Processing" section
 of the [p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb) file.
+
+# Reproducibility
+The secondary purpose of this repository is to provide a mean to reproduce the
+results presented in [Nawała2020]. To this end we make available the `reproduce.py`
+script. Its functionality is best explained by its help message.
+```
+usage: reproduce.py [-h] [-n N] scenario
+
+Allows to reproduce all the experiments in the Nawała et al. Describing
+Subjective Experiment Consistency by p-Value P-P Plot paper from ACM MM'20.
+
+positional arguments:
+  scenario              a digit (1–5) corresponding to an execution scenario
+                        of choice: (1) Redraw and reproduce figures and tables
+                        using the existing G-test results. (2) Reproduce only
+                        these G-test results that are necessary for Fig. 3.
+                        (3) Reproduce all G-test results. Importantly,
+                        scenario 1 needs almost no time to run. Scenario 2
+                        needs around 224 hours (more than 9 days), whereas
+                        scenario 3 needs around 509 hours (more than 21 days).
+                        (Read about the batch processing capability to deal
+                        with these long execution times.) (4) Run the G-test
+                        for N randomly selected stimuli. (5) Reproduce
+                        probability grids for the GSD and QNormal models.
+                        (This takes about an hour.)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n N, --number-of-stimuli N
+                        run the G-test for this many stimuli (only relevant
+                        when used in conjunction with scenario 4)
+```
+
+## Requirements
+Before you run the `reproduce.py` script please ensure that all the packages listed
+in the [requirements.txt](requirements.txt) file are installed. You can do so by
+running the following in the terminal. (**We recommend to run this command in
+a newly created Python virtual environment.**)
+```bash
+$ python3 -m pip install -r requirements.txt
+```
+
+The code was tested with Python 3.7. Thus, our recommendation is to use Python 3.7
+or newer.
+
+## Test the Setup
+To quickly check that everything is set up properly please run the following in
+the terminal.
+```bash
+$ python3 reproduce.py 1
+```
+
+This will reproduce all the figures and tables from [Nawała2020] using data
+available in this repository. In other words, this recreates the tables and
+figures, but instead of doing that using raw subjective responses, it uses
+results derived from those. More specifically, it uses G-test results from
+the [G_test_results.csv](G_test_results.csv) file and CSV files available
+in the [reproducibility](reproducibility) folder.
+
+## Reproduce Everything From the Scratch
+To entirely reproduce the results from [Nawała2020] please run the following
+in the terminal.
+```bash
+$ python3 reproduce.py 3  # Reproduce G-test results and regenerate tables and figures
+$ python3 reproduce.py 5  # Reproduce probability grids
+```
+
+Please be advised that the first of the two calls to `reproduce.py` **takes about
+21 days to finish**. This was tested on the following hardware setup:
+Intel Core i3-8130U CPU, 16 GB of 2400 MHz RAM and 256 GB SSD disk
+(Lenovo LENSE30256GMSP34MEAT3TA).
+
+If you do not want to wait 21 days to generate G-test results please consult
+the [Batch Processing](#batch-processing) section. Having at hand the
+G-test results from multiple batch processing chunks please merge them into
+on large CSV file. Then, rename the file to `G_test_results.csv`, place it
+in the root folder of this repository and run the following to reproduce all
+the figures and tables from [Nawała2020] using the reproduced G-test results.
+```bash
+$ python3 reproduce.py 1
+```
+
+Since running the G-test implicitly uses pre-calculated probability grids you
+need to reproduce these as well to claim that the complete reproducibility has
+been achieved. This is done by the `$ python3 reproduce.py 5` call. Once
+it finishes running (which takes about one hour) you end up with two files:
+(i) `reproduced_gsd_prob_grid.pkl`
+and (ii) `reproduced_qnormal_prob_grid.pkl`. To make sure the two reproduced
+probability grids are used whenever you run the G-test, please rename the two
+files to `gsd_prob_grid.pkl` and `qnormal_prob_grid.pkl`, respectively. At last,
+place the two in the root folder of this repository. From now on, whenever you
+run `friendly_gsd.py` or `reproduce.py` scripts (in the mode running the G-test)
+they will use the reproduced probability grids.
+
+## Interpreting the Outputs
+The listing below shows files generated after running `reproduce.py` with execution
+scenarios 3 and 5.
+```text
+p-value_pp-plot_fig_one_a.pdf
+p-value_pp-plot_fig_one_b.pdf
+table_one_score_distribution.csv
+table_two_pvals.csv
+p-value_pp-plot_HDTV1_fig_three.pdf
+p-value_pp-plot_ITS4S2_fig_three.pdf
+p-value_pp-plot_ITS4S_AGH_fig_three.pdf
+p-value_pp-plot_AGH_NTIA_fig_three.pdf
+table_three_five_lowest_pvalue_res_its4s_agh.csv
+table_four_five_lowest_pvalue_res_its4s2.csv
+G_test_on_subjective_quality_datasets_chunk000_of_001.csv
+reproduced_gsd_prob_grid.pkl
+reproduced_qnormal_prob_grid.pkl
+```
+
+The way in which you can check whether the reproduced results are
+in line with the original results depends on the output type. For figures
+(i.e., all the PDF files),
+you have to perform a visual comparison with those in [Nawała2020]. Since
+the tables are concise you can do the same with these.
+
+The easiest way
+to check the correctness of probability grids (i.e., *.pkl files) is to
+read them into Pandas and subtract from the original grids (i.e.,
+`gsd_prob_grid.pkl` and `qnormal_prob_grid.pkl`). The result should be
+a DataFrame with all cells equal or nearly equal to zero. The code snippet
+below shows how to load into Pandas one reproduced probability grid and
+compare it with the one provided in this repository.
+```python
+import pandas as pd
+
+repro_gsd_grid = pd.read_pickle("reproduced_gsd_prob_grid.pkl")
+gsd_grid = pd.read_pickle("gsd_prob_grid.pkl")
+diff_df = gsd_grid - repro_gsd_grid
+diff_df.sum().sum()  # Output: -4.6074255521944e-15
+```
+
+The reproduced G-test results (i.e., the
+`G_test_on_subjective_quality_datasets_chunk000_of_001.csv` file) can
+be checked for correctness in the similar vain to probability grids. The most
+important column to check is the one called "p-value_gsd". Values in this
+column should be compared with those
+contained in the [G_test_results.csv](G_test_results.csv) file.
+Importantly, please do not expect to observe identical results in both
+files. This is beacuse we use the bootstrapped version of the G-test.
+For each sample analysed we generate 10,000 random bootstrap samples.
+Hence, the final _p_-value changes when you repeat the G-test for the
+same stimulus multiple times. If you want to lear more about this procedure
+please refer to the
+[In-depth Tutorial about Generating *p*-Value P–P Plots for Your Subjective Data](#in-depth-tutorial-about-generating-p-value-pp-plots-for-your-subjective-data)
+section.
+
+## Run G-test on Random Stimuli
+If you do not have time to reproduce all G-test results on a single machine
+or do not have access to a computational cluster, you can always use the
+`reproduce.py` script to run the G-test for _N_ random stimuli. To do so
+please run the following in the terminal
+```bash
+$ python3 reproduce.py -n 3 4
+```
+Called this way, `reproduce.py` will choose three random stimuli and run
+the G-test for them. When done, it will print the estimated parameters
+of the GSD and related G-test _p_-values. It will also store the results
+in the `g_test_res_for_random_stimuli.csv` file. Based on stimuli IDs
+and experiment IDs to which they belong, you can compare the reproduced
+results with those in the [G_test_results.csv](G_test_results.csv) file.
+
+The listing below shows an exemplary output of this scenario.
+```text
+Summary of G-test results:
+              psi_hat rho_hat p_value
+(2111.0, 2.0)     1.5   0.875  0.5846
+Stored the G-test results in the g_test_res_for_random_stimuli.csv file
+```
+In this case, the result conserns stimulus with ID 2111 that comes from
+experiment with ID 2.
 
 # Authorship
 

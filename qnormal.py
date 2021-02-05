@@ -13,7 +13,7 @@ def prob(psi, sigma, cdf=False):
     :param cdf: If true return pdf
     :return: probabilities
     """
-    grid = pge.get_each_answer_probability_for_normal([psi], [sigma])
+    grid = pge.get_each_answer_probability_for_qnormal([psi], [sigma])
     probs = grid.to_numpy(dtype=np.float64)[0]
     if cdf:
         probs = np.cumsum(probs, axis=-1)

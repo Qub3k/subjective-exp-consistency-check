@@ -18,6 +18,7 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 from G_test_on_real_data import read_input_data_subsection
 from probability_grid_estimation import get_answer_counts, estimate_parameters, preprocess_real_data
+from pathlib import Path
 
 mpl.rcParams["backend"] = "TkAgg"
 mpl.rcParams["interactive"] = True
@@ -25,10 +26,11 @@ plt.style.use("ggplot")
 logger = None
 
 
-def proces_input_parameters():
+def proces_input_parameters(_argv: list):
     """
     Processes parameters supplied by the user
 
+    :param _argv: a list of argument values to use if this script is not called directly from the CLI
     :return: argparse.Namespace with input parameters processed
     """
 
@@ -78,7 +80,12 @@ def proces_input_parameters():
                                                                  "dealing with data where stimulus identifier is not "
                                                                  "unique across different experiments.",
                         action="store_true")
-    args = parser.parse_args()
+    parser.add_argument("-f", "--store-figure", help="store the P–P plot on the disk instead of displaying it.",
+                        action="store_true")
+    if __name__ != '__main__':
+        args = parser.parse_args(_argv)
+    else:
+        args = parser.parse_args()
     return args
 
 
@@ -89,6 +96,8 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
     identified by *keys_for_coi*). The G-test assesses how well the Generalized Score Distribution (GSD) fits the
     observable data (available through *data_grouped*). To speed-up the computations the function uses a pre-calculated
     probability grid (*prob_grid_gsd*).
+
+    TODO 2. Allow to choose how the column with p-values is called (or otherwise solve this issue)
 
     :param keys_for_coi: a list of DataFrameGroupBy keys identifying stimuli relevant for a chunk of interest (coi)
     :param data_grouped: subjective scores grouped by a stimulus identifier
@@ -103,9 +112,14 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
     :return: a DataFrame with G-test results (i.e., estimated GSD parameters, T statistic of the test, p-value of the
      test). Importantly, the DataFrame is indexed with stimulus identifiers
     """
+    global logger
+    if logger is None:  # in case this function is run from outside of this script
+        logger = setup_console_and_file_logger(name=__name__, log_file_name=splitext(argv[0])[0] + ".log",
+                                               level=logging.INFO)
     logger.info("There are {} stimuli to process".format(len(keys_for_coi)))
 
-    g_test_res = pd.DataFrame(columns=["stimulus_id", "psi_hat", "rho_hat", "T", "p_value"], index=keys_for_coi)
+    g_test_res = pd.DataFrame(columns=["stimulus_id", "psi_hat", "rho_hat", "T", "p_value", "count1", "count2",
+                                       "count3", "count4", "count5"], index=keys_for_coi)
 
     # Perform the G-test for each stimulus
     it_num = 1  # monitor iteration number
@@ -163,13 +177,19 @@ def perform_g_test(keys_for_coi: list, data_grouped: pd.core.groupby.GroupBy, pr
         g_test_res.loc[[key_for_coi], "rho_hat"] = rho_hat
         g_test_res.loc[[key_for_coi], "T"] = T_statistic_gsd
         g_test_res.loc[[key_for_coi], "p_value"] = p_value_g_test_gsd
+        g_test_res.loc[[key_for_coi], "count1"] = score_counts[0]
+        g_test_res.loc[[key_for_coi], "count2"] = score_counts[1]
+        g_test_res.loc[[key_for_coi], "count3"] = score_counts[2]
+        g_test_res.loc[[key_for_coi], "count4"] = score_counts[3]
+        g_test_res.loc[[key_for_coi], "count5"] = score_counts[4]
 
         it_num += 1
 
     return g_test_res
 
 
-def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_store_figure=False, ext="pdf"):
+def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_store_figure=False, ext="pdf",
+                         filename_addition="", pval_col_id="p_value"):
     """
     Draws p-value P--P plot for G-test of goodness-of-fit data provided in *g_test_res*. By default, the x-axis of the
     plot spans the range from 0 to 0.2 (cf. *thresh_pvalue*). One can ask to store the resulting plot
@@ -180,6 +200,9 @@ def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_sto
     :param thresh_pvalue: the x-axis spans the range from 0 up to this value
     :param should_store_figure: a flag indicating whether to store plots on the disk
     :param ext: file extension to use when storing figures (e.g., png or pdf)
+    :param filename_addition: a string allowing to make the output file's filename unique. (Useful when this function
+     is called multiple times for different data.)
+    :param pval_col_id: p-value column identifier that should be used when reading from *g_test_res*
     :return: a figure handle
     """
     n_pvs = len(g_test_res)
@@ -188,11 +211,11 @@ def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_sto
     def count_pvs_fraction(p_value, p_value_per_pvs):
         return np.sum(p_value_per_pvs <= p_value) / len(p_value_per_pvs)
 
-    pvs_fraction_gsd = g_test_res["p_value"].apply(count_pvs_fraction, args=(g_test_res["p_value"],))
+    pvs_fraction_gsd = g_test_res[pval_col_id].apply(count_pvs_fraction, args=(g_test_res[pval_col_id],))
     significance_line = p_values + norm.ppf(0.95) * np.sqrt(p_values * (1 - p_values) / n_pvs)
 
     fig = plt.figure()
-    plt.scatter(g_test_res["p_value"], pvs_fraction_gsd, label="GSD")
+    plt.scatter(g_test_res[pval_col_id], pvs_fraction_gsd, label="GSD")
     plt.xlabel("theoretical uniform cdf")
     plt.ylabel("ecdf of $p$-values")
     plt.plot(p_values, significance_line, "-k")
@@ -201,9 +224,10 @@ def draw_p_value_pp_plot(g_test_res: pd.DataFrame, thresh_pvalue=0.2, should_sto
     plt.minorticks_on()
 
     if should_store_figure:
-        saved_fig_filename = "p-value_pp-plot." + ext
+        saved_fig_filename = "_".join(["p-value_pp-plot", filename_addition]) + "." + ext
         plt.savefig(saved_fig_filename)
         plt.close(fig)
+        print(f"Stored the P-P plot in the {saved_fig_filename} file")
     else:
         plt.show()
 
@@ -227,8 +251,8 @@ def fit_gsd(scores: pd.Series, gsd_prob_grid_filepath="gsd_prob_grid.pkl"):
     return psi_hat, rho_hat
 
 
-def main():
-    args = proces_input_parameters()
+def main(_argv=None):
+    args = proces_input_parameters(_argv)
 
     # Read the input data in chunks
     n_chunks = args.chunks
@@ -241,7 +265,9 @@ def main():
                                            .format(chunk_idx, n_chunks), level=logging.INFO)
     logger.info("Reading chunk with id {} (of {} total chunks)".format(chunk_idx, n_chunks))
     # Read the appropriate chunk of data
-    data_grouped = preprocess_real_data(args.data_csv_filepath, should_also_group_by_exp=args.group_also_by_experiment,
+    in_csv_filepath = Path(args.data_csv_filepath)
+    assert in_csv_filepath.exists() and in_csv_filepath.is_file(), f"Make sure the {in_csv_filepath} file exists"
+    data_grouped = preprocess_real_data(in_csv_filepath, should_also_group_by_exp=args.group_also_by_experiment,
                                         stimulus_identifier=args.stimulus_identifier)
     # coi - chunk of interest
     keys_for_coi = read_input_data_subsection(data_grouped, n_chunks, chunk_idx)
@@ -255,10 +281,12 @@ def main():
                                 grouped_also_by_experiment=args.group_also_by_experiment)
 
     # Visualise G-test results in a form of p-value pp-plot
-    pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res)
+    in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
+    pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res, should_store_figure=args.store_figure,
+                                              filename_addition=in_csv_filename_wo_ext)
 
     # Store G-test results in a CSV file
-    csv_filename = "G-test_chunk_id_{}_of_{}_chunks.csv".format(chunk_idx, n_chunks)
+    csv_filename = "_".join(["G_test_on", in_csv_filename_wo_ext, f"chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
     logger.info(f"Storing the results of G-test of goodness-of-fit in the {csv_filename} file")
     g_test_res.to_csv(csv_filename, index=False)
     return

@@ -20,7 +20,7 @@ import csv
 from scipy.special import binom
 
 logger = setup_console_and_file_logger(name=__name__, log_file_name="probability_grid_estimation.log",
-                                       level=logging.DEBUG)
+                                       level=logging.INFO)
 
 # Done to make sure this grid is computed only once
 log_prob_grid_gsd_df = None
@@ -67,7 +67,7 @@ def preprocess_real_data(subjective_datasets_csv_filepath="subjective_quality_da
 
 def generate_sigma_grid():
     """
-    Generates a grid of sigma values. Sigma values go linearly from 0.01 to 4.0 with the stop of 0.01 and from there on
+    Generates a grid of sigma values. Sigma values go linearly from 0.01 to 4.0 with the step of 0.01 and from there on
     with the step doubled each item, up to the sigma value of 40.
 
     :return: the grid of sigma values
@@ -246,10 +246,10 @@ def get_each_answer_probability_for_gsd(psi_grid, rho_grid, precision=15):
     return prob_grid_df
 
 
-def get_each_answer_probability_for_normal(psi_grid, sigma_grid, precision=15):
+def get_each_answer_probability_for_qnormal(psi_grid, sigma_grid, precision=15):
     """
     Calculates the probability of each of the five answers (i.e., 1, 2, 3, 4, and 5) for all combinations of psi and
-    sigma for the normal model.
+    sigma for the qnormal model.
 
     :param psi_grid: an ndarray of psi values
     :param sigma_grid: an ndarray of sigma values
