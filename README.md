@@ -367,6 +367,31 @@ please refer to the
 [In-depth Tutorial about Generating *p*-Value P–P Plots for Your Subjective Data](#in-depth-tutorial-about-generating-p-value-pp-plots-for-your-subjective-data)
 section.
 
+## Run G-test on Random Stimuli
+If you do not have time to reproduce all G-test results on a single machine
+or do not have access to a computational cluster, you can always use the
+`reproduce.py` script to run the G-test for _N_ random stimuli. To do so
+please run the following in the terminal
+```bash
+$ python3 reproduce.py -n 3 4
+```
+Called this way, `reproduce.py` will choose three random stimuli and run
+the G-test for them. When done, it will print the estimated parameters
+of the GSD and related G-test _p_-values. It will also store the results
+in the `g_test_res_for_random_stimuli.csv` file. Based on stimuli IDs
+and experiment IDs to which they belong, you can compare the reproduced
+results with those in the [G_test_results.csv](G_test_results.csv) file.
+
+The listing below shows an exemplary output of this scenario.
+```text
+Summary of G-test results:
+              psi_hat rho_hat p_value
+(2111.0, 2.0)     1.5   0.875  0.5846
+Stored the G-test results in the g_test_res_for_random_stimuli.csv file
+```
+In this case, the result conserns stimulus with ID 2111 that comes from
+experiment with ID 2.
+
 # Authorship
 
 The code in this repo was mostly written by Jakub Nawała <jnawala@agh.edu.pl>. Some smaller pieces of it were
