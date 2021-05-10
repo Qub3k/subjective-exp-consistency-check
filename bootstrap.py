@@ -1,10 +1,16 @@
 # Authors:  Krzysztof Rusek <krusek@agh.edu.pl>
 #           Jakub Nawała <jnawala@agh.edu.pl>
+#
+# Date modified: May 6, 2021
 
 import numpy as np
 import gsd
 
-def empirical_distribution(sample, cumulative=False):
+
+# TODO Implement the bootstrap analysis described in App. E of our paper
+
+
+def empirical_distribution(sample: np.ndarray, cumulative=False):
     """
     Empirical cumulative distribution (ECD) function (defined as `p(X<=x)`) or empirical probability mass function
     (EPMF), depending on whether the *cumulative* flag is true or false, respectively.
