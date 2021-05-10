@@ -53,6 +53,20 @@ def read_input_data_subsection(grouped_scores: pd.core.groupby.GroupBy, n_subsec
     return keys_for_coi
 
 
+def get_each_answer_probability(psi_sigma_row, prob_generator):
+    """
+    Translates psi and sigma (or rho) parameters into the probability of each answer.
+
+    :param psi_sigma_row: a 2-column vector with the first col. corresponding to psi and the second one to
+     sigma (or rho)
+    :param prob_generator: either gsd.prob or qnormal.prob
+    :return: a vector of probabilities of each answer
+    """
+    psi = psi_sigma_row[0]
+    sigma_or_rho = psi_sigma_row[1]
+    return prob_generator(psi, sigma_or_rho)
+
+
 def main(_argv):
     assert len(_argv) == 4, "This script requires 3 parameters: the number of chunks, a zero-based chunk index and " \
                             "path of a CSV file you wish to process"
@@ -153,22 +167,9 @@ def main(_argv):
             # Translate the estimated bootstrap parameters into probabilities of each answer
             logger.info("Translating the estimated parameters into probabilities of each answer")
 
-            def _get_each_answer_probability(psi_sigma_row, prob_generator):
-                """
-                Translates psi and sigma (or rho) parameters into the probability of each answer.
-
-                :param psi_sigma_row: a 2-column vector with the first col. corresponding to psi and the second one to
-                 sigma (or rho)
-                :param prob_generator: either gsd.prob or qnormal.prob
-                :return: a vector of probabilities of each answer
-                """
-                psi = psi_sigma_row[0]
-                sigma_or_rho = psi_sigma_row[1]
-                return prob_generator(psi, sigma_or_rho)
-
-            bootstrap_exp_prob_gsd = np.apply_along_axis(_get_each_answer_probability, axis=1,
+            bootstrap_exp_prob_gsd = np.apply_along_axis(get_each_answer_probability, axis=1,
                                                          arr=psi_hat_rho_hat_gsd_bootstrap, prob_generator=gsd.prob)
-            bootstrap_exp_prob_qnormal = np.apply_along_axis(_get_each_answer_probability, axis=1,
+            bootstrap_exp_prob_qnormal = np.apply_along_axis(get_each_answer_probability, axis=1,
                                                              arr=psi_hat_sigma_hat_qnormal_bootstrap,
                                                              prob_generator=qnormal.prob)
 
