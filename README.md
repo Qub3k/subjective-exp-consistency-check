@@ -389,7 +389,7 @@ Summary of G-test results:
 (2111.0, 2.0)     1.5   0.875  0.5846
 Stored the G-test results in the g_test_res_for_random_stimuli.csv file
 ```
-In this case, the result conserns stimulus with ID 2111 that comes from
+In this case, the result concerns stimulus with ID 2111 that comes from
 experiment with ID 2.
 
 # Authorship
