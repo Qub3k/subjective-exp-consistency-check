@@ -6,13 +6,21 @@ import gsd
 
 def empirical_distribution(sample, cumulative=False):
     """
-    Empirical (cumulative) distribution (ECD) function defined as `p(X<=x)`
+    Empirical cumulative distribution (ECD) function (defined as `p(X<=x)`) or empirical probability mass function
+    (EPMF), depending on whether the *cumulative* flag is true or false, respectively.
 
-    :param sample: array(num_samples, num_categories) containing counts
+    :param sample: array(num_samples, num_categories) containing counts of responses assigned to each response category
     :param cumulative: a flag indicating whether to return the empirical cumulative distribution function (ECDF) or
      an empirical probability mass function (EPMF)
     :return: EPMF or ECD if cumulative is True
     """
+    if type(sample) is not np.ndarray:
+        sample = np.array(sample)
+    if sample.ndim == 1:
+        sample = sample[np.newaxis, :]
+    assert type(sample) is np.ndarray and sample.ndim == 2, "Incorrect input detected. Make sure to provide as input" \
+                                                            " a 2-dimensional numpy ndarray."
+
     normalizer = sample.sum(axis=-1)
     p_hat = sample / normalizer[:, np.newaxis]
     return np.cumsum(p_hat, axis=-1) if cumulative else p_hat
