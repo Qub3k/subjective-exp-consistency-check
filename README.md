@@ -194,9 +194,10 @@ batch processing functionality.
 
 In order not to make this README too lengthy we provide the tutorial in the form of a Jupyter Notebook.
 Please open the [p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
-file to get access to the tutorial. Although GitHub is able to nicely render the file in your browser some images
-are not displayed correctly. Please install the `notebook` PIP package and run the following (from repo's root folder)
-to open the tutorial locally.
+file to get access to the tutorial.
+
+If you prefer to view the tutorial locally, then please install the `notebook` PIP package.
+With the package installed, run the following (from the repo's root folder) to open the tutorial locally.
 ```shell script
 jupyter notebook p_value_pp_plot_in-depth_tutorial.ipynb
 ```
