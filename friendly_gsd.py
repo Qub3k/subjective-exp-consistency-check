@@ -282,8 +282,10 @@ def main(_argv=None):
 
     # Visualise G-test results in a form of p-value pp-plot
     in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
-    pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res, should_store_figure=args.store_figure,
-                                              filename_addition=in_csv_filename_wo_ext)
+    if n_chunks > 1:
+        logger.info("Since this is the batch processing mode, I am not generating any P–P plots")
+        pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res, should_store_figure=args.store_figure,
+                                                  filename_addition=in_csv_filename_wo_ext)
 
     # Store G-test results in a CSV file
     csv_filename = "_".join(["G_test_on", in_csv_filename_wo_ext, f"chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
