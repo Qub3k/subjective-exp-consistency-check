@@ -93,8 +93,10 @@ python3 friendly_gsd.py hdtv1_exp1_scores_pp_plot_ready.csv
 ```
 
 Executing the script this way we ask it to process all 168 stimuli from the first experiment of the HDTV Phase
-I test. **Please be advised that this may take long time to finish**. Our internal trials on consumer-grade laptop (as
-of 2020) indicate that it takes around 5 minutes to process a single stimulus. This is why the script supports
+I test. **Please be advised that this may take long time to finish**. Our internal trials on a consumer-grade laptop (as
+of 2020) indicate that it takes around 5 minutes to process a single stimulus
+(which corresponds to 14 hours of processing for the entire VQEG HDTV Phase I study).
+This is why the script supports
 batch processing. More details on this subject are in [the Batch Processing section](#batch-processing).
 
 # Run Only the G-test
@@ -220,7 +222,7 @@ For more details on this subject please take a look at the "Batch Processing" se
 of the [p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb) file.
 
 # Reproducibility
-The secondary purpose of this repository is to provide a mean to reproduce the
+The secondary purpose of this repository is to provide means to reproduce the
 results presented in [Nawała2020]. To this end we make available the `reproduce.py`
 script. Its functionality is best explained by its help message.
 ```
