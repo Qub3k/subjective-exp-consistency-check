@@ -21,7 +21,7 @@ make any use of this repository's content.
 Long story short, [the `friendly_gsd.py` script](friendly_gsd.py) is the most important piece
 of code here. To learn how to use it (especially if you want to generate *p*-value P&ndash;P plots
 for your subjective data) please refer to the
-[p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+[p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file (cf. the
 [In-depth Tutorial about Generating *p*-Value P–P Plots for Your Subjective
 Data](#in-depth-tutorial-about-generating-p-value-pp-plots-for-your-subjective-data) section).
@@ -49,7 +49,7 @@ It implements *p*-value P&ndash;P plot generation along with all the related fun
 (i.e., GSD distribution parameters estimation and execution of the bootstrapped version of the
 G-test of goodness-of-fit). For more information on how to use this script please refer
 to the
-[p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+[p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file.
 
 [The subjective_quality_datasets.csv file](subjective_quality_datasets.csv) contains subjective
@@ -59,13 +59,13 @@ scores from 21 real-life subjective experiments. For more details please refer t
 (for the fitted GSD distribution) for all stimuli listed in
 [the subjective_quality_datasets.csv file](subjective_quality_datasets.csv). To learn what is
 the meaning of this file please refer to [Nawała2020] and the
-[p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+[p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file.
 
 [The hdtv1_exp1_scores_pp_plot_ready.csv file](hdtv1_exp1_scores_pp_plot_ready.csv) contains
 subjective scores from the first experiment of the HDTV Phase I subjective study [Pinson2010].
 These scores are used in the
-[p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+[p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file to present what input data format is accepted by the `friendly_gsd.py` script.
 
 [The `friendly_gsd.py` script](friendly_gsd.py) depends on several auxiliary scripts. These are:
@@ -73,7 +73,7 @@ file to present what input data format is accepted by the `friendly_gsd.py` scri
 `_logger.py` and `qnormal.py`.
 
 [The *figures* folder](figures) contains graphics used in the
-[p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+[p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file. They help explain how to create and interpret P&ndash;P plots.
 
 [The requirements.txt file](requirements.txt) lists PIP packages required to use the code.
@@ -175,12 +175,12 @@ the output CSV file will be `G-test_chunk_id_0_of_1_chunks.csv`.
 
 For the details on how this output CSV file is formatted and how to prepare your subjective
 data for processing with `friendly_gsd.py` please refer to sections "Output" and "Input"
-of the [p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+of the [p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file, respectively.
 
 **WARNING**: Although the code run this way returns G-test results these are not meaningful and
 should be discarded. For the explanation why this is the case please refer to the
-[p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+[p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file.
 
 # In-depth Tutorial about Generating *p*-Value P–P Plots for Your Subjective Data
@@ -193,7 +193,7 @@ the code in this repository&mdash;how to run it, what input does it require, wha
 batch processing functionality. 
 
 In order not to make this README too lengthy we provide the tutorial in the form of a Jupyter Notebook.
-Please open the [p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb)
+Please open the [p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb)
 file to get access to the tutorial. Although GitHub is able to nicely render the file in your browser some images
 are not displayed correctly. Please install the `notebook` PIP package and run the following (from repo's root folder)
 to open the tutorial locally.
@@ -216,7 +216,7 @@ designed our code to be batch processing ready. Differently put, you can run mul
 `friendly_gsd.py` script, each processing a separate part of your input data.
 
 For more details on this subject please take a look at the "Batch Processing" section
-of the [p_value_pp_plot_in-depth_tutorial.ipynb](p_value_pp_plot_in-depth_tutorial.ipynb) file.
+of the [p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb) file.
 
 # Reproducibility
 The secondary purpose of this repository is to provide a mean to reproduce the
