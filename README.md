@@ -95,9 +95,62 @@ python3 friendly_gsd.py hdtv1_exp1_scores_pp_plot_ready.csv
 Executing the script this way we ask it to process all 168 stimuli from the first experiment of the HDTV Phase
 I test. **Please be advised that this may take long time to finish**. Our internal trials on a consumer-grade laptop (as
 of 2020) indicate that it takes around 5 minutes to process a single stimulus
-(which corresponds to 14 hours of processing for the entire VQEG HDTV Phase I study).
-This is why the script supports
-batch processing. More details on this subject are in [the Batch Processing section](#batch-processing).
+(which corresponds to 14 hours of processing for the entire experiment).
+This is why the script supports batch processing (see below for more details). 
+
+## Batch Processing
+**<font color=red>TODO</font>**: Copy here the details regarding how to use the batch processing
+functionality.
+
+Since performing the bootstrapped version of the G-test of goodness-of-fit (GoF) is computationally-intensive we
+designed our code to be batch processing ready. Differently put, you can run multiple instances of the
+`friendly_gsd.py` script, each processing a separate part of your input data.
+
+Below is an excerpt from `friendly_gsd.py`'s command-line help message.
+```shell
+usage: friendly_gsd.py [-h] [-p path] [-c N] [-i idx] [-s identifier]
+                       [-o identifier] [-e] [-f]
+                       data_filepath
+```
+In terms of batch processing the `-c` and `-i` optional arguments are of our interest. Here are their help messages.
+```
+  -c N, --chunks N      (for batch processing) the number of chunks into which
+                        the input data should be split. It defaults to 1.
+  -i idx, --index idx   (for batch processing) 0-based index of a chunk to
+                        process. It default to 0.
+```
+Using these you can start many instances of `friendly_gsd.py`, each with **the same** input data file, **the same** number
+of chunks (`-c`) and each with a **unique** index of a chunk to process (`-i`).
+
+For example, if you have three machines (A, B and C), each with one CPU, it makes sense to start three instances of the
+`friendly_gsd.py` script&mdash;one on each of the machines. Now, assuming you have an exact copy of your input
+data file (say, `my_input_data.csv`) on each of the machines, here is how you should start the `friendly_gsd.py`
+script on each machine.
+
+Machine A
+```shell
+python3 friendly_gsd.py -c 3 -i 0 my_input_data.csv
+```
+
+Machine B
+```shell
+python3 friendly_gsd.py -c 3 -i 1 my_input_data.csv
+```
+
+Machine C
+```shell
+python3 friendly_gsd.py -c 3 -i 2 my_input_data.csv
+```
+
+Please note how the value of the `-i` parameter is changing depending on the machine the script is run on.
+
+After all the computations are finished you end up with one CSV file with G-test results on each machine.
+Specifically, on machine A you will get `G-test_chunk_id_0_of_3_chunks.csv`; on machine B:
+`G-test_chunk_id_1_of_3_chunks.csv` and on machine C: `G-test_chunk_id_2_of_3_chunks.csv`. These three files
+(when combined) contain G-test results for all stimuli present in the `my_input_data.csv` file.
+
+**<font color=red>TODO</font>**: Say that the P--P plot has to be manually created later on (after
+multiple partial CSV files are combined into a single CSV file).
 
 # Run Only the G-test
 In case you are here just to run the G-test of goodness-of-fit (GoF) this section is for you.
