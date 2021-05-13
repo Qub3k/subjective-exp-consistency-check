@@ -373,7 +373,9 @@ def process_input_parameters():
                                                             "probability grids for the GSD and QNormal models. (This "
                                                             "takes about an hour.)")
     parser.add_argument("-n", "--number-of-stimuli", help="run the G-test for this many stimuli (only relevant when "
-                                                          "used in conjunction with scenario 4)", metavar="N", type=int)
+                                                          "used in conjunction with scenario 4). The default is to "
+                                                          "use three random stimuli.", metavar="N", type=int,
+                        default=3)
     args = parser.parse_args()
     assert 0 < args.scenario < 6, "Please choose either scenario 1, 2, 3 or 4."
     return args
