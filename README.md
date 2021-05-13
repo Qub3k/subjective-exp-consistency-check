@@ -96,11 +96,10 @@ Executing the script this way we ask it to process all 168 stimuli from the firs
 I test. **Please be advised that this may take long time to finish**. Our internal trials on a consumer-grade laptop (as
 of 2020) indicate that it takes around 5 minutes to process a single stimulus
 (which corresponds to 14 hours of processing for the entire experiment).
-This is why the script supports batch processing (see below for more details). 
+This is why the script supports batch processing (see next section for more
+details). 
 
 ## Batch Processing
-**<font color=red>TODO</font>**: Copy here the details regarding how to use the batch processing
-functionality.
 
 Since performing the bootstrapped version of the G-test of goodness-of-fit (GoF) is computationally-intensive we
 designed our code to be batch processing ready. Differently put, you can run multiple instances of the
@@ -302,14 +301,6 @@ Among other things, it provides a handy functionality of floating table of conte
 
 The method works only for subjective data expressed on the 5-level Absolute Category Rating (ACR) scale (cf. Sec. 6.1
 of [Rec. ITU-T P.910](https://www.itu.int/rec/T-REC-P.910/en)).
-
-# Batch Processing
-Since performing the bootstrapped version of the G-test of goodness-of-fit (GoF) is computationally-intensive we
-designed our code to be batch processing ready. Differently put, you can run multiple instances of the
-`friendly_gsd.py` script, each processing a separate part of your input data.
-
-For more details on this subject please take a look at the "Batch Processing" section
-of the [p_value_pp_plot_in-depth_tutorial.ipynb](https://nbviewer.jupyter.org/github/Qub3k/subjective-exp-consistency-check/blob/master/p_value_pp_plot_in-depth_tutorial.ipynb) file.
 
 # Reproducibility
 The secondary purpose of this repository is to provide means to reproduce the
