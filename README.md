@@ -1,6 +1,6 @@
 # About
 
-This repository stores data, source codes and an in-depth tutorial all related with
+This repository stores data, source codes and an in-depth tutorial, all related with
 generating *p*-value P&ndash;P plots to assess consistency of subjective data. It
 also provides means to reproduce the results presented in [Nawała2020]. (For more
 information regarding reproducibility please go to the
@@ -96,12 +96,14 @@ Executing the script this way we ask it to process all 168 stimuli from the firs
 I test. **Please be advised that this may take long time to finish**. Our internal trials on a consumer-grade laptop (as
 of 2020) indicate that it takes around 5 minutes to process a single stimulus
 (which corresponds to 14 hours of processing for the entire experiment).
-This is why the script supports batch processing (see next section for more
-details). 
+This is why the script supports a batch processing mode (see next section for more
+details).
+
+**Our recommendation is to use the batch processing mode as the default approach.**
 
 ## Batch Processing
 
-Since performing the bootstrapped version of the G-test of goodness-of-fit (GoF) is computationally-intensive we
+Since performing the bootstrapped version of the G-test of goodness-of-fit (GoF) is computationally intensive we
 designed our code to be batch processing ready. Differently put, you can run multiple instances of the
 `friendly_gsd.py` script, each processing a separate part of your input data.
 
