@@ -59,6 +59,17 @@ def T_statistic(n, p):
     :return: T statistic
     """
     n_total = np.sum(n, axis=-1, keepdims=True)
+
+    # Replace zeros in n and p with very small floating point values to avoid division by zero
+    if np.ndim(n) == 1:
+        n = np.array([count if (count > 0) else np.finfo(np.float64).eps for count in n])
+    elif np.ndim(n) == 2:  # running for multiple bootstrap samples
+        n = np.array([[count if (count > 0) else np.finfo(np.float64).eps for count in sample] for sample in n])
+    if np.ndim(p) == 1:
+        p = np.array([prob if (prob != 0) else np.finfo(np.float64).eps for prob in p])
+    elif np.ndim(n) == 2:  # running for multiple bootstrap samples
+        p = np.array([[prob if (prob != 0) else np.finfo(np.float64).eps for prob in sample] for sample in p])
+
     T = n * np.log(n / (n_total * p))
     T = np.where(n == 0, 0, T).sum(axis=-1)
     return T
