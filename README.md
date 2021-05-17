@@ -42,6 +42,10 @@ Data](#in-depth-tutorial-about-generating-p-value-pp-plots-for-your-subjective-d
 
 To learn more about code's batch processing functionality please see the [Batch Processing](#batch-processing) section.
 
+At the end of this document you will also find a list of references (cf. the
+[Bibliography](#bibliography) section) and
+acknowledgements (cf. the [Acknowledgements](#acknowledgements) section).
+
 # Repository Structure
 
 The most important file in this repository is [the `friendly_gsd.py` script](friendly_gsd.py).
@@ -485,6 +489,14 @@ implemented by Krzysztof Rusek <krusek@agh.edu.pl>.
 
 Lucjan Janowski <janowski@kt.agh.edu.pl> governed the whole process and Bogdan Ćmiel <cmielbog@gmail.com> made sure
 we got statistics right.
+
+# Acknowledgements
+
+We gratefully acknowledge the help of
+[Franz Hahn](https://www.mmsp.uni-konstanz.de/people/overview/research-staff/franz-goetz-hahn/), who helped us solve
+the division by zero problems in the
+[bootstrap.py](bootstrap.py) and
+[probability_grid_estimation.py](probability_grid_estimation.py) scripts. Thank you! ❤
 
 # Bibliography
 [Janowski2019] Janowski, L., Ćmiel, B., Rusek, K., Nawała, J., & Li, Z. (2019). Generalized Score Distribution.
