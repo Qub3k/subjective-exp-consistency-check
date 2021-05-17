@@ -163,13 +163,15 @@ def estimate_parameters(sample, prob_grid_df, sample_as_counts=False):
     if is_gsd:
         if log_prob_grid_gsd_df is None:
             logger.info("Calculating the log-probability grid for the GSD model")
-            log_prob_grid_gsd_df = prob_grid_df.applymap(np.log)
+            log_prob_grid_gsd_df = prob_grid_df.applymap(
+                lambda prob: np.log(prob) if (prob != 0) else np.log(np.finfo(np.float64).eps))  # prob - probability
         log_prob_grid_df = log_prob_grid_gsd_df
 
     if is_normal:
         if log_prob_grid_normal_df is None:
             logger.info("Calculating the log-probability grid for the QNormal model")
-            log_prob_grid_normal_df = prob_grid_df.applymap(np.log)
+            log_prob_grid_normal_df = prob_grid_df.applymap(
+                lambda prob: np.log(prob) if (prob != 0) else np.log(np.finfo(np.float64).eps))
         log_prob_grid_df = log_prob_grid_normal_df
 
     # Calculate the log-likelihood for each psi and sigma/rho (_s means Pandas Series)
@@ -395,7 +397,7 @@ def main():
     prob_grid_gsd_df = pd.read_pickle("gsd_prob_grid.pkl")
 
     # Get the real life subjective scores grouped by PVS ID
-    pvs_id_exp_grouped_scores = preprocess_real_data("opticom_res_tidy.csv" ,should_also_group_by_exp=True)
+    pvs_id_exp_grouped_scores = preprocess_real_data("opticom_res_tidy.csv", should_also_group_by_exp=True)
 
     csv_results_filename = "opticom_res_gsd_chi2_gof.csv"
     logger.info("Storing the results in the {} file".format(csv_results_filename))

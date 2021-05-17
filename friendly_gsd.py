@@ -7,7 +7,8 @@ import logging
 from _logger import setup_console_and_file_logger
 from sys import argv
 import argparse
-from os import path
+from os import path, listdir
+import re
 from os.path import splitext
 import pandas as pd
 import numpy as np
@@ -251,6 +252,33 @@ def fit_gsd(scores: pd.Series, gsd_prob_grid_filepath="gsd_prob_grid.pkl"):
     return psi_hat, rho_hat
 
 
+def read_results_from_chunks(results_folder_path="G-test_results"):
+    """
+    Reads results from multiple CSV files into a single Pandas Data Frame. The 'results_folder_path' parameter
+    specifies a path to a folder with the results. This function is specifically targeted at reading in results from
+    computations done on multiple computational nodes.
+
+    NOTE: This function assumes that all the CSV files have the same structure and their ordering does not matter.
+    NOTE: The function also assumes that no other CSV files are in the results_folder_path folder
+
+    :param results_folder_path: a path to a folder with multiple CSV files containing results
+    :return: a Pandas Data Frame with the results
+    """
+    results_chunk_list = []
+
+    for filename in listdir(results_folder_path):
+        # Make sure to process CSV files only
+        if not re.match(r'.*\.(csv)', filename, flags=re.IGNORECASE):
+            continue
+
+        results_path = path.join(results_folder_path, filename)
+        results_chunk = pd.read_csv(results_path)
+        results_chunk_list.append(results_chunk)
+
+    results = pd.concat(results_chunk_list, ignore_index=True)
+    return results
+
+
 def main(_argv=None):
     args = proces_input_parameters(_argv)
 
@@ -282,8 +310,10 @@ def main(_argv=None):
 
     # Visualise G-test results in a form of p-value pp-plot
     in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
-    pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res, should_store_figure=args.store_figure,
-                                              filename_addition=in_csv_filename_wo_ext)
+    if n_chunks > 1:
+        logger.info("Since this is the batch processing mode, I am not generating any P–P plots")
+        pp_plot_fig_handle = draw_p_value_pp_plot(g_test_res, should_store_figure=args.store_figure,
+                                                  filename_addition=in_csv_filename_wo_ext)
 
     # Store G-test results in a CSV file
     csv_filename = "_".join(["G_test_on", in_csv_filename_wo_ext, f"chunk_id_{chunk_idx}_of_{n_chunks}_chunks.csv"])
