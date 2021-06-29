@@ -10,7 +10,7 @@ import gsd
 # TODO Implement the bootstrap analysis described in App. E of our paper
 
 
-def empirical_distribution(sample: np.ndarray, cumulative=False):
+def empirical_distribution(sample: np.ndarray, cumulative=False, corrected=False):
     """
     Empirical cumulative distribution (ECD) function (defined as `p(X<=x)`) or empirical probability mass function
     (EPMF), depending on whether the *cumulative* flag is true or false, respectively.
@@ -18,6 +18,7 @@ def empirical_distribution(sample: np.ndarray, cumulative=False):
     :param sample: array(num_samples, num_categories) containing counts of responses assigned to each response category
     :param cumulative: a flag indicating whether to return the empirical cumulative distribution function (ECDF) or
      an empirical probability mass function (EPMF)
+    :param corrected: whether to apply the correction eliminating zero-probability response categories
     :return: EPMF or ECD if cumulative is True
     """
     if type(sample) is not np.ndarray:
@@ -27,8 +28,18 @@ def empirical_distribution(sample: np.ndarray, cumulative=False):
     assert type(sample) is np.ndarray and sample.ndim == 2, "Incorrect input detected. Make sure to provide as input" \
                                                             " a 2-dimensional numpy ndarray."
 
-    normalizer = sample.sum(axis=-1)
-    p_hat = sample / normalizer[:, np.newaxis]
+    # corr --- correction
+    total_sum_corr = 0.0
+    if corrected:
+        total_sum_corr = 2.5
+    normalizer = sample.sum(axis=-1) + total_sum_corr
+
+    # cat --- response category
+    per_cat_corr = 0.0
+    if corrected:
+        per_cat_corr = 0.5
+    p_hat = (sample + per_cat_corr) / normalizer[:, np.newaxis]
+    assert (p_hat.sum(axis=-1) == 1).all(), "Not all per-bootstrap sample EPMF sum up to 1. Check your code."
     return np.cumsum(p_hat, axis=-1) if cumulative else p_hat
 
 
