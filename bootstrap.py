@@ -7,9 +7,6 @@ import numpy as np
 import gsd
 
 
-# TODO Implement the bootstrap analysis described in App. E of our paper
-
-
 def empirical_distribution(sample: np.ndarray, cumulative=False, corrected=False, precision=15):
     """
     Empirical cumulative distribution (ECD) function (defined as `p(X<=x)`) or empirical probability mass function
