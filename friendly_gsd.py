@@ -25,6 +25,9 @@ mpl.rcParams["backend"] = "TkAgg"
 mpl.rcParams["interactive"] = True
 plt.style.use("ggplot")
 logger = None
+# Instruct Matplotlib not to use Type 3 fonts
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif')
 
 
 def proces_input_parameters(_argv: list):
