@@ -7,10 +7,7 @@ import numpy as np
 import gsd
 
 
-# TODO Implement the bootstrap analysis described in App. E of our paper
-
-
-def empirical_distribution(sample: np.ndarray, cumulative=False, corrected=False):
+def empirical_distribution(sample: np.ndarray, cumulative=False, corrected=False, precision=15):
     """
     Empirical cumulative distribution (ECD) function (defined as `p(X<=x)`) or empirical probability mass function
     (EPMF), depending on whether the *cumulative* flag is true or false, respectively.
@@ -19,6 +16,8 @@ def empirical_distribution(sample: np.ndarray, cumulative=False, corrected=False
     :param cumulative: a flag indicating whether to return the empirical cumulative distribution function (ECDF) or
      an empirical probability mass function (EPMF)
     :param corrected: whether to apply the correction eliminating zero-probability response categories
+    :param precision: a number of decimal places to round to. For example, if rounding to 3 decimal places, 0.9999 would
+        produce 1.0, whereas 0.999 would not (it would produce 0.999).
     :return: EPMF or ECD if cumulative is True
     """
     if type(sample) is not np.ndarray:
@@ -39,7 +38,8 @@ def empirical_distribution(sample: np.ndarray, cumulative=False, corrected=False
     if corrected:
         per_cat_corr = 0.5
     p_hat = (sample + per_cat_corr) / normalizer[:, np.newaxis]
-    assert (p_hat.sum(axis=-1) == 1).all(), "Not all per-bootstrap sample EPMF sum up to 1. Check your code."
+    assert (np.round(p_hat.sum(axis=-1), decimals=precision) == 1).all(), "Not all per-bootstrap sample EPMF sum up " \
+                                                                          "to 1. Check your code."
     return np.cumsum(p_hat, axis=-1) if cumulative else p_hat
 
 
