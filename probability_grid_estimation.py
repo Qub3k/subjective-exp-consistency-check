@@ -208,7 +208,10 @@ def get_each_answer_probability_for_gsd(psi_grid, rho_grid, precision=15):
 
         vmax = (psi - 1) * (5 - psi)
         vmin = (np.ceil(psi) - psi) * (psi - np.floor(psi))
-        c_psi = 3 * vmax / (4 * (vmax - vmin))
+        if vmin == 0 and vmax == 0:
+            c_psi = np.nan
+        else:
+            c_psi = 3 * vmax / (4 * (vmax - vmin))
 
         if rho < c_psi:
             rho_1_m_psi = rho * (1 - psi)
@@ -235,6 +238,15 @@ def get_each_answer_probability_for_gsd(psi_grid, rho_grid, precision=15):
                                             ((-rho_1_m_psi - 4 * rho) / denominator2 + 1) * \
                                             ((-rho_1_m_psi - 4 * rho) / denominator3 + 1) * \
                                             ((psi - 1) / 4)
+        elif psi == 5:
+            prob_grid_df[1].loc[psi, rho], prob_grid_df[2].loc[psi, rho] = 0, 0
+            prob_grid_df[3].loc[psi, rho], prob_grid_df[4].loc[psi, rho] = 0, 0
+            prob_grid_df[5].loc[psi, rho] = 1
+
+        elif psi == 1:
+            prob_grid_df[1].loc[psi, rho], prob_grid_df[2].loc[psi, rho] = 1, 0
+            prob_grid_df[3].loc[psi, rho], prob_grid_df[4].loc[psi, rho] = 0, 0
+            prob_grid_df[5].loc[psi, rho] = 0
         else:
             for score in np.arange(1, 6):
                 prob_grid_df[score].loc[psi, rho] = (rho - c_psi) / (1 - c_psi) * max(0, 1 - np.abs(score - psi)) + \
