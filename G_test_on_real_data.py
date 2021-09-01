@@ -18,6 +18,7 @@ import qnormal
 import numpy as np
 from sys import argv
 from pathlib import Path
+from data_analysis import estimatate_gsd_parameters
 
 logger = None
 
@@ -157,8 +158,10 @@ def main(_argv):
 
             # Estimate GSD and QNormal parameters for each bootstrapped sample
             logger.info("Estimating GSD and QNormal parameters for each bootstrapped sample")
-            psi_hat_rho_hat_gsd_bootstrap = np.apply_along_axis(estimate_parameters, axis=1, arr=bootstrap_samples_gsd,
-                                                                prob_grid_df=prob_grid_gsd_df, sample_as_counts=True)
+            # Use the OpenCL-accelerated GSD estimation
+            psi_hat_rho_hat_gsd_bootstrap = estimatate_gsd_parameters(bootstrap_samples_gsd,
+                                                                      subsample_size=n_total_scores,
+                                                                      gsd_prob_grid_filepath="gsd_prob_grid.pkl")
             psi_hat_sigma_hat_qnormal_bootstrap = np.apply_along_axis(estimate_parameters, axis=1,
                                                                       arr=bootstrap_samples_qnormal,
                                                                       prob_grid_df=prob_grid_qnormal_df,
