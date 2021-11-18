@@ -14,6 +14,8 @@ def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False):
 
     :param mos: vector of Mean Opinion Scores (MOS), that is, sample means
     :param s_var: vector of sample variances
+    :param cdf: flag indicating whether to return probabilities of the five response categories (false, the default) or
+     cumulative probabilities of these (true)
     :return: (no. of samples x no. of response categories) array with probabilities of each of the five
      response categories (1, 2, 3, 4 and 5) or with cumulative probabilities (if *cdf* is true)
     """
@@ -27,6 +29,9 @@ def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False):
     probs = np.stack([p1, p2, p3, p4, p5], axis=1)
     if cdf:
         probs = np.cumsum(probs, axis=-1)
+    # flatten the result if only one sample was processed
+    if probs.shape[0] == 1:
+        probs = probs.flatten()
     return probs
 
 
@@ -38,5 +43,5 @@ def sample(mos, s_var, n_subjects, n):
     :return: (n x 5) np.ndarray with frequencies of each of the five response categories
     """
     probs = prob(np.array([mos]), np.array([s_var]))
-    s = np.random.multinomial(n_subjects, probs.flatten, size=(n))
+    s = np.random.multinomial(n_subjects, probs, size=(n))
     return s
