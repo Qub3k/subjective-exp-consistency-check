@@ -140,8 +140,8 @@ def main(_argv):
 
             logger.info("Estimating Simplified Li2020's parameters")
             # sli --- Simplified Li2020
-            sli_mean = mos
-            sli_variance = sample_variance
+            sli_hat_mean = mos
+            sli_hat_variance = sample_variance
 
             logger.info("Estimating both models parameters using MLE on the probability grid")
             # est = esimated
@@ -156,7 +156,7 @@ def main(_argv):
             # exp_prob = expected probability
             exp_prob_gsd = gsd.prob(psi_hat_gsd, rho_hat)
             exp_prob_qnormal = qnormal.prob(psi_hat_qnormal, sigma_hat)
-            exp_prob_sli = sli.prob([sli_mean], [sli_variance])
+            exp_prob_sli = sli.prob(np.array([sli_hat_mean]), np.array([sli_hat_variance]))
             T_statistic_gsd = bootstrap.T_statistic(score_counts, exp_prob_gsd)
             T_statistic_qnormal = bootstrap.T_statistic(score_counts, exp_prob_qnormal)
             T_statistic_sli = bootstrap.T_statistic(score_counts, exp_prob_sli)
@@ -169,6 +169,9 @@ def main(_argv):
             n_bootstrap_samples = 10000
             bootstrap_samples_gsd = gsd.sample(psi_hat_gsd, rho_hat, n_total_scores, n_bootstrap_samples)
             bootstrap_samples_qnormal = qnormal.sample(psi_hat_qnormal, sigma_hat, n_total_scores, n_bootstrap_samples)
+            bootstrap_samples_sli = sli.sample(sli_hat_mean, sli_hat_variance, n_total_scores, n_bootstrap_samples)
+
+            logger.info("Estimating Simplified Li2020 model's parameters for each bootstrap sample")
 
             # Estimate GSD and QNormal parameters for each bootstrapped sample
             logger.info("Estimating GSD and QNormal parameters for each bootstrapped sample")
