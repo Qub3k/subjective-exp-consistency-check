@@ -130,14 +130,14 @@ def perform_chi_squared(sample, prob_grid_df, psi, sigma):
 
 def estimate_parameters(sample, prob_grid_df, sample_as_counts=False):
     """
-    Estimate optimal parameters (psi and sigma/rho) of the normal (or GSD) model given the probability grid (for
+    Estimate optimal parameters (psi and sigma/rho) of the QNormal (or GSD) model given the probability grid (for
     selected values of psi and sigma/rho) and a sample of observations.
 
     TODO Vectorize this function to support multiple samples provided with the "sample" parameter
 
     :param sample: a sample of discrete observations (expressed on the same scale as the one used to prepare the
         probability grid)
-    :param prob_grid_df: a Data Frame with a probability grid of the normal (or GSD) model for selected values of psi
+    :param prob_grid_df: a Data Frame with a probability grid of the QNormal (or GSD) model for selected values of psi
         and sigma/rho
     :param sample_as_counts: a flag indicating whether the input sample is expressed as counts of each score
     :return: estimated psi and sigma/rho parameter values (wrt. the probability grid provided) in the form of a tuple
