@@ -14,6 +14,7 @@ import csv
 import pandas as pd
 import bootstrap
 import gsd
+import sli
 import qnormal
 import numpy as np
 from sys import argv
@@ -69,6 +70,7 @@ def get_each_answer_probability(psi_sigma_row, prob_generator):
 
 
 def main(_argv):
+    # TODO 1. Add estimation procedure for the Simplified Li2020 model
     assert len(_argv) == 4, "This script requires 3 parameters: the number of chunks, a zero-based chunk index and " \
                             "path of a CSV file you wish to process"
 
@@ -105,8 +107,9 @@ def main(_argv):
     logger.info("Storing the results in the {} file".format(csv_results_filename))
 
     with open(csv_results_filename, 'w', newline='', buffering=1) as csvfile:
-        fieldnames = ["PVS_id", "count1", "count2", "count3", "count4", "count5", "MOS", "Exp", "psi_hat_gsd",
-                      "rho_hat", "psi_hat_qnormal", "sigma_hat", "T_gsd", "T_qnormal", "p-value_gsd", "p-value_qnormal"]
+        fieldnames = ["PVS_id", "count1", "count2", "count3", "count4", "count5", "MOS", "sample_var", "Exp",
+                      "psi_hat_gsd", "rho_hat", "psi_hat_qnormal", "sigma_hat", "T_gsd", "T_qnormal", "T_sli",
+                      "p-value_gsd", "p-value_qnormal"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -125,12 +128,20 @@ def main(_argv):
             logger.info("MOS of the PVS {} in experiment {}: {:.3f}".format(pvs_id, exp_id, mos))
             row_to_store["MOS"] = mos
 
+            sample_variance = sample_scores.var()
+            row_to_store["sample_var"] = sample_variance
+
             score_counts = np.array(get_answer_counts(sample_scores))
             row_to_store["count1"] = score_counts[0]
             row_to_store["count2"] = score_counts[1]
             row_to_store["count3"] = score_counts[2]
             row_to_store["count4"] = score_counts[3]
             row_to_store["count5"] = score_counts[4]
+
+            logger.info("Estimating Simplified Li2020's parameters")
+            # sli --- Simplified Li2020
+            sli_mean = mos
+            sli_variance = sample_variance
 
             logger.info("Estimating both models parameters using MLE on the probability grid")
             # est = esimated
@@ -145,10 +156,13 @@ def main(_argv):
             # exp_prob = expected probability
             exp_prob_gsd = gsd.prob(psi_hat_gsd, rho_hat)
             exp_prob_qnormal = qnormal.prob(psi_hat_qnormal, sigma_hat)
+            exp_prob_sli = sli.prob([sli_mean], [sli_variance])
             T_statistic_gsd = bootstrap.T_statistic(score_counts, exp_prob_gsd)
             T_statistic_qnormal = bootstrap.T_statistic(score_counts, exp_prob_qnormal)
+            T_statistic_sli = bootstrap.T_statistic(score_counts, exp_prob_sli)
             row_to_store["T_gsd"] = T_statistic_gsd
             row_to_store["T_qnormal"] = T_statistic_qnormal
+            row_to_store["T_sli"] = T_statistic_sli
 
             logger.info("Generating 10k bootstrap samples for both models")
             n_total_scores = np.sum(score_counts)
