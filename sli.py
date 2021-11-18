@@ -45,3 +45,19 @@ def sample(mos, s_var, n_subjects, n):
     probs = prob(np.array([mos]), np.array([s_var]))
     s = np.random.multinomial(n_subjects, probs, size=(n))
     return s
+
+
+def estimate_parameters(samples: np.ndarray):
+    """
+    Estimates Simplified Li2020 model's parameters.
+
+    :param samples: a 2-dimensional (number of samples, number of response categories) np.ndarray with
+     samples. Each sample represents the number of responses assigned to each response category.
+    :return: a 2-dimensional np.ndarray with estimated MOSes (the first column) and sample variances (the second column)
+     of None if something failed
+    """
+    n_subjects = np.sum(samples, axis=-1)
+    mos_hat = np.sum(samples * [1, 2, 3, 4, 5], axis=-1) / n_subjects
+    # TODO 1. Implement variance calculation having response categories frequencies
+    var_hat = ""
+    return
