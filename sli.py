@@ -28,3 +28,15 @@ def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False):
     if cdf:
         probs = np.cumsum(probs, axis=-1)
     return probs
+
+
+def sample(mos, s_var, n_subjects, n):
+    """
+    Generates *n* random samples with *n_subjects* observations each. The samples follow the Simplified Li2020 model
+    defined for parameters *mos* and *s_var* (sample variance).
+
+    :return: (n x 5) np.ndarray with frequencies of each of the five response categories
+    """
+    probs = prob(np.array([mos]), np.array([s_var]))
+    s = np.random.multinomial(n_subjects, probs.flatten, size=(n))
+    return s
