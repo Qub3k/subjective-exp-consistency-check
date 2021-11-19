@@ -22,8 +22,11 @@ def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False, precision=15):
     :return: (no. of samples x no. of response categories) array with probabilities of each of the five
      response categories (1, 2, 3, 4 and 5) or with cumulative probabilities (if *cdf* is true)
     """
+    # If sample variance equals 0, use the smallest available float as the scale of the normal distribution
+    s_std_dev = np.sqrt(s_var)  # std_dev --- standard deviation
+    s_std_dev = np.where(s_std_dev != 0, s_std_dev, np.finfo(np.float64).eps)
     # rv --- random variable
-    rv = norm(loc=mos, scale=np.sqrt(s_var))
+    rv = norm(loc=mos, scale=s_std_dev)
     p1 = rv.cdf(1.5)  # probability of observing responses with response category 1
     p2 = rv.cdf(2.5) - rv.cdf(1.5)  # probability of observing responses with response category 2
     p3 = rv.cdf(3.5) - rv.cdf(2.5)  # and so on...
