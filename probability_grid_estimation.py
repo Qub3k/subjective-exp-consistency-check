@@ -56,7 +56,13 @@ def preprocess_real_data(subjective_datasets_csv_filepath="subjective_quality_da
     :return: a DataFrameGroupBy object with the data grouped by the PVS_id column or by the PVS ID and Experiment
         columns (depending on the should_also_group_by_exp flag).
     """
-    subjective_datasets_df = pd.read_csv(subjective_datasets_csv_filepath)
+    # If opening the one large tidy CSV file, read it properly
+    if 'subjective_quality_datasets' in subjective_datasets_csv_filepath:
+        logger.info("The one large tidy CSV file detected. Opening it properly...")
+        subjective_datasets_df = pd.read_csv(subjective_datasets_csv_filepath, dtype={'PVS_id': str, 'SRC_id': str,
+                                                                                      'HRC_id': str, 'Tester_id': str})
+    else:
+        subjective_datasets_df = pd.read_csv(subjective_datasets_csv_filepath)
     if should_also_group_by_exp:
         pvs_id_experiment_grouped = subjective_datasets_df.groupby([stimulus_identifier, experiment_identifier])
         return pvs_id_experiment_grouped
