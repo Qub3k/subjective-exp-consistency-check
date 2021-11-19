@@ -97,7 +97,7 @@ def main(_argv):
 
     logger.info("Reading chunk {} (from {} chunks)".format(chunk_idx, n_chunks))
     # coi - chunk of interest
-    pvs_id_exp_grouped_scores = preprocess_real_data(in_csv_filepath, should_also_group_by_exp=True)
+    pvs_id_exp_grouped_scores = preprocess_real_data(str(in_csv_filepath), should_also_group_by_exp=True)
     keys_for_coi = read_input_data_subsection(pvs_id_exp_grouped_scores, n_chunks, chunk_idx)
 
     in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
