@@ -54,10 +54,13 @@ def estimate_parameters(samples: np.ndarray):
     :param samples: a 2-dimensional (number of samples, number of response categories) np.ndarray with
      samples. Each sample represents the number of responses assigned to each response category.
     :return: a 2-dimensional np.ndarray with estimated MOSes (the first column) and sample variances (the second column)
-     of None if something failed
+     or None if something failed
     """
     n_subjects = np.sum(samples, axis=-1)
     mos_hat = np.sum(samples * [1, 2, 3, 4, 5], axis=-1) / n_subjects
-    # TODO 1. Implement variance calculation having response categories frequencies
-    var_hat = ""
-    return
+    # Change response category frequencies into raw individual responses and compute variance for each sample
+    # indvdl_resp --- individual responses
+    indvdl_resp = np.apply_along_axis(lambda frequencies: np.repeat([1, 2, 3, 4, 5], frequencies), axis=1, arr=samples)
+    var_hat = indvdl_resp.var(axis=-1)
+    mos_hat_var_hat = np.stack([mos_hat, var_hat], axis=1)
+    return mos_hat_var_hat
