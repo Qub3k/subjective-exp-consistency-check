@@ -6,7 +6,7 @@ from scipy.stats import norm
 import numpy as np
 
 
-def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False):
+def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False, precision=15):
     """
     Generates probabilities of observing each response category (5 in this case) for a set of Mean Opinion Scores
     (*mos*) and corresponding sample variances (*s_var*). If *cdf* is true, it returns values of the cumulative
@@ -16,6 +16,9 @@ def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False):
     :param s_var: vector of sample variances
     :param cdf: flag indicating whether to return probabilities of the five response categories (false, the default) or
      cumulative probabilities of these (true)
+    :param precision: a number of decimal places to round to when checking whether the total probability truly equal 1.
+     For example, if rounding to 3 decimal places, 0.9999 would produce 1.0, whereas 0.999 would not (it would produce
+     0.999).
     :return: (no. of samples x no. of response categories) array with probabilities of each of the five
      response categories (1, 2, 3, 4 and 5) or with cumulative probabilities (if *cdf* is true)
     """
@@ -27,6 +30,10 @@ def prob(mos: np.ndarray, s_var: np.ndarray, cdf=False):
     p4 = rv.cdf(4.5) - rv.cdf(3.5)
     p5 = 1 - rv.cdf(4.5)
     probs = np.stack([p1, p2, p3, p4, p5], axis=1)
+    # Check whether the total probability equals 1
+    total_prob = np.round(np.sum(probs, axis=-1), decimals=precision)
+    assert all(np.equal(total_prob, 1)), f"Probabilities of all answers do not add up to 1 for at least one sample. " \
+                                         f"Quitting. "
     if cdf:
         probs = np.cumsum(probs, axis=-1)
     # flatten the result if only one sample was processed
