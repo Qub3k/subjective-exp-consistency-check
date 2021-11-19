@@ -146,6 +146,8 @@ def main(_argv):
             row_to_store["MOS"] = mos
 
             sample_variance = sample_scores.var()
+            if len(sample_scores) == 1:  # protect against NaN when only one response is available
+                sample_variance = 0
             row_to_store["sample_var"] = sample_variance
 
             score_counts = np.array(get_answer_counts(sample_scores))
