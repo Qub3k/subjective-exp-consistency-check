@@ -70,7 +70,6 @@ def get_each_answer_probability(psi_sigma_row, prob_generator):
 
 
 def main(_argv):
-    # TODO 1. Add estimation procedure for the Simplified Li2020 model
     assert len(_argv) == 4, "This script requires 3 parameters: the number of chunks, a zero-based chunk index and " \
                             "path of a CSV file you wish to process"
 
@@ -109,7 +108,7 @@ def main(_argv):
     with open(csv_results_filename, 'w', newline='', buffering=1) as csvfile:
         fieldnames = ["PVS_id", "count1", "count2", "count3", "count4", "count5", "MOS", "sample_var", "Exp",
                       "psi_hat_gsd", "rho_hat", "psi_hat_qnormal", "sigma_hat", "T_gsd", "T_qnormal", "T_sli",
-                      "p-value_gsd", "p-value_qnormal"]
+                      "p-value_gsd", "p-value_qnormal", "p-value_sli"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -143,7 +142,7 @@ def main(_argv):
             sli_hat_mean = mos
             sli_hat_variance = sample_variance
 
-            logger.info("Estimating both models parameters using MLE on the probability grid")
+            logger.info("Estimating GSD and QNormal models parameters using MLE on the probability grid")
             # est = esimated
             psi_hat_gsd, rho_hat = estimate_parameters(sample_scores, prob_grid_gsd_df)
             psi_hat_qnormal, sigma_hat = estimate_parameters(sample_scores, prob_grid_qnormal_df)
@@ -152,7 +151,7 @@ def main(_argv):
             row_to_store["psi_hat_qnormal"] = psi_hat_qnormal
             row_to_store["sigma_hat"] = sigma_hat
 
-            logger.info("Calculating T statistic for both models")
+            logger.info("Calculating T statistic for all models")
             # exp_prob = expected probability
             exp_prob_gsd = gsd.prob(psi_hat_gsd, rho_hat)
             exp_prob_qnormal = qnormal.prob(psi_hat_qnormal, sigma_hat)
@@ -164,16 +163,16 @@ def main(_argv):
             row_to_store["T_qnormal"] = T_statistic_qnormal
             row_to_store["T_sli"] = T_statistic_sli
 
-            logger.info("Generating 10k bootstrap samples for both models")
+            logger.info("Generating 10k bootstrap samples for all models")
             n_total_scores = np.sum(score_counts)
             n_bootstrap_samples = 10000
             bootstrap_samples_gsd = gsd.sample(psi_hat_gsd, rho_hat, n_total_scores, n_bootstrap_samples)
             bootstrap_samples_qnormal = qnormal.sample(psi_hat_qnormal, sigma_hat, n_total_scores, n_bootstrap_samples)
             bootstrap_samples_sli = sli.sample(sli_hat_mean, sli_hat_variance, n_total_scores, n_bootstrap_samples)
 
+            # Estimate GSD, QNormal and Simplified Li2020 parameters for each bootstrapped sample
             logger.info("Estimating Simplified Li2020 model's parameters for each bootstrap sample")
-
-            # Estimate GSD and QNormal parameters for each bootstrapped sample
+            mos_hat_var_hat_bootstrap = sli.estimate_parameters(bootstrap_samples_sli)
             logger.info("Estimating GSD and QNormal parameters for each bootstrapped sample")
             # Use the OpenCL-accelerated GSD estimation
             psi_hat_rho_hat_gsd_bootstrap = estimatate_gsd_parameters(bootstrap_samples_gsd,
@@ -186,12 +185,14 @@ def main(_argv):
 
             # Translate the estimated bootstrap parameters into probabilities of each answer
             logger.info("Translating the estimated parameters into probabilities of each answer")
-
             bootstrap_exp_prob_gsd = np.apply_along_axis(get_each_answer_probability, axis=1,
                                                          arr=psi_hat_rho_hat_gsd_bootstrap, prob_generator=gsd.prob)
             bootstrap_exp_prob_qnormal = np.apply_along_axis(get_each_answer_probability, axis=1,
                                                              arr=psi_hat_sigma_hat_qnormal_bootstrap,
                                                              prob_generator=qnormal.prob)
+            mos_hat_bootstrap = mos_hat_var_hat_bootstrap[:, 0]
+            var_hat_bootstrap = mos_hat_var_hat_bootstrap[:, 1]
+            bootstrap_exp_prob_sli = sli.prob(mos_hat_bootstrap, var_hat_bootstrap)
 
             # Perform the G-test
             logger.info("Performing the G-test")
@@ -199,10 +200,14 @@ def main(_argv):
                                                   bootstrap_exp_prob_gsd)
             p_value_g_test_qnormal = bootstrap.G_test(score_counts, exp_prob_qnormal, bootstrap_samples_qnormal,
                                                       bootstrap_exp_prob_qnormal)
+            p_value_g_test_sli = bootstrap.G_test(score_counts, exp_prob_sli, bootstrap_samples_sli,
+                                                  bootstrap_exp_prob_sli)
             row_to_store["p-value_gsd"] = p_value_g_test_gsd
             row_to_store["p-value_qnormal"] = p_value_g_test_qnormal
+            row_to_store["p-value_sli"] = p_value_g_test_sli
             logger.info("p-value (G-test) for GSD: {}".format(p_value_g_test_gsd))
             logger.info("p-value (G-test) for QNormal: {}".format(p_value_g_test_qnormal))
+            logger.info("p-value (G-test) for Simplified Li2020: {}".format(p_value_g_test_sli))
 
             writer.writerow(row_to_store)
             it_num += 1
