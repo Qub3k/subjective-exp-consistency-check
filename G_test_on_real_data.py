@@ -76,7 +76,12 @@ def get_each_answer_probability(psi_sigma_row, prob_generator):
     return prob_generator(psi, sigma_or_rho)
 
 
-def main(_argv):
+def main(_argv, should_also_group_by_exp=True):
+    """
+    :param _argv: command line arguments
+    :param should_also_group_by_exp: flag indicating whether to group the input data both by experiment ID and stimulus
+     ID (True, the default) or not (False)
+    """
     assert len(_argv) >= 4, "This script requires 3 parameters: the number of chunks, a zero-based chunk index and " \
                             "path of a CSV file you wish to process. There is one more optional parameter, which " \
                             "decides whether the analysis is run for all three models (the default), or only for the " \
@@ -114,7 +119,8 @@ def main(_argv):
     logger.info(f"Running for the {exec_type.name} execution type.")
     logger.info("Reading chunk {} (from {} chunks)".format(chunk_idx, n_chunks))
     # coi - chunk of interest
-    pvs_id_exp_grouped_scores = preprocess_real_data(str(in_csv_filepath), should_also_group_by_exp=True)
+    pvs_id_exp_grouped_scores = preprocess_real_data(str(in_csv_filepath),
+                                                     should_also_group_by_exp=should_also_group_by_exp)
     keys_for_coi = read_input_data_subsection(pvs_id_exp_grouped_scores, n_chunks, chunk_idx)
 
     in_csv_filename_wo_ext = in_csv_filepath.stem  # wo - without, ex - extension
@@ -135,8 +141,12 @@ def main(_argv):
         # iteration number to make it easier to assess the progress
         it_num = 1
         for pvs_id_exp_tuple in keys_for_coi:
-            pvs_id = pvs_id_exp_tuple[0]
-            exp_id = pvs_id_exp_tuple[1]
+            if should_also_group_by_exp:
+                pvs_id = pvs_id_exp_tuple[0]
+                exp_id = pvs_id_exp_tuple[1]
+            else:  # Only stimulus-wise grouping
+                pvs_id = pvs_id_exp_tuple
+                exp_id = np.nan
             pvs_data = pvs_id_exp_grouped_scores.get_group(pvs_id_exp_tuple)
             row_to_store = {"PVS_id": pvs_id, "Exp": exp_id}
             logger.info("Iteration {}".format(it_num))
@@ -245,7 +255,7 @@ def main(_argv):
 
 
 if __name__ == '__main__':
-    main(argv)
+    main(argv, should_also_group_by_exp=False)
 
     logger.info("Everything done!")
 
