@@ -78,7 +78,9 @@ def get_each_answer_probability(psi_sigma_row, prob_generator):
 
 def main(_argv):
     assert len(_argv) >= 4, "This script requires 3 parameters: the number of chunks, a zero-based chunk index and " \
-                            "path of a CSV file you wish to process"
+                            "path of a CSV file you wish to process. There is one more optional parameter, which " \
+                            "decides whether the analysis is run for all three models (the default), or only for the " \
+                            "Simplified Li 2020 model only (see the ExecutionType enum in the code)."
 
     # Run the code for all models by default
     exec_type = ExecutionType.ALL
