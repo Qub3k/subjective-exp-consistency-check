@@ -57,12 +57,14 @@ def sample(mos, s_var, n_subjects, n):
     return s
 
 
-def estimate_parameters(samples: np.ndarray):
+def estimate_parameters(samples: np.ndarray, corrected=False):
     """
     Estimates Simplified Li2020 model's parameters.
 
     :param samples: a 2-dimensional (number of samples, number of response categories) np.ndarray with
      samples. Each sample represents the number of responses assigned to each response category.
+    :param corrected: flag indicating whether to perform the corrected parameters estimation (True) or the standard
+     one (False, the default)
     :return: a 2-dimensional np.ndarray with estimated MOSes (the first column) and sample variances (the second column)
      or None if something failed
     """
@@ -72,5 +74,10 @@ def estimate_parameters(samples: np.ndarray):
     # indvdl_resp --- individual responses
     indvdl_resp = np.apply_along_axis(lambda frequencies: np.repeat([1, 2, 3, 4, 5], frequencies), axis=1, arr=samples)
     var_hat = indvdl_resp.var(axis=-1)
+    # Apply parameters estimation correction if this was requested. Done not to observe zero frequency cells.
+    if corrected:
+        std_dev_thresh = 1 / (2 * norm.ppf(1 - (1 / (2 * n_subjects))))
+        std_dev_hat = np.sqrt(var_hat)
+        var_hat = np.where(std_dev_hat < std_dev_thresh, std_dev_thresh ** 2, var_hat)
     mos_hat_var_hat = np.stack([mos_hat, var_hat], axis=1)
     return mos_hat_var_hat
