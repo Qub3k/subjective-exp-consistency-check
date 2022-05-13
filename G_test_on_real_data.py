@@ -76,11 +76,12 @@ def get_each_answer_probability(psi_sigma_row, prob_generator):
     return prob_generator(psi, sigma_or_rho)
 
 
-def main(_argv, should_also_group_by_exp=True):
+def main(_argv, should_also_group_by_exp=True, response_identifier="Score"):
     """
     :param _argv: command line arguments
     :param should_also_group_by_exp: flag indicating whether to group the input data both by experiment ID and stimulus
      ID (True, the default) or not (False)
+    :param response_identifier: a string identifying the column with individual subjective responses
     """
     assert len(_argv) >= 4, "This script requires 3 parameters: the number of chunks, a zero-based chunk index and " \
                             "path of a CSV file you wish to process. There is one more optional parameter, which " \
@@ -152,7 +153,7 @@ def main(_argv, should_also_group_by_exp=True):
             logger.info("Iteration {}".format(it_num))
             logger.info("Processing PVS {} from experiment {}".format(pvs_id, exp_id))
 
-            sample_scores = pvs_data["Score"]
+            sample_scores = pvs_data[response_identifier]
             mos = sample_scores.mean()
             logger.info("MOS of the PVS {} in experiment {}: {:.3f}".format(pvs_id, exp_id, mos))
             row_to_store["MOS"] = mos
