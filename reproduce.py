@@ -60,6 +60,18 @@ class Experiment(Enum):
     MM2_OPTICOM_HOME = 19
     ITS4S2 = 20
     ITU_T_SUPP23 = 21
+    BABAK_401 = 22
+    BABAK_501 = 23
+    BABAK_701 = 24
+    TORTURE_NOKIA = 25
+    TORTURE_AGH = 26
+    TORTURE_UPM = 27
+    MOVIE_LENS_ONE_M = 28
+    PERSONALITY2018 = 29
+    NFLX_FEB18_SESSION1_SLIDER = 30
+    NFLX_FEB18_SESSION2_SLIDER = 31
+    NFLX_FEB18_SESSION1_NO_SLIDER = 32
+    NFLX_FEB18_SESSION2_NO_SLIDER = 33
 
 
 def check_consistency_of_all_experiments(g_test_res_csv_filepath="G_test_results.csv", conj_alpha=0.2,
